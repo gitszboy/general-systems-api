@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="quote_summary" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5546fe84-6a96-43e2-b16d-4530277616a4">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="192"/>
+	<property name="net.sf.jasperreports.awt.ignore.missing.font" value="true"/>
+	<property name="net.sf.jasperreports.default.font.name" value="SansSerif"/>
+	<parameter name="agn_code_param" class="java.lang.Long"/>
+	<parameter name="trans_no_param" class="java.lang.Long"/>
+	<parameter name="logo" class="java.io.InputStream" isForPrompting="false">
+		<parameterDescription><![CDATA[The Company image]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="logo_footer" class="java.io.InputStream" isForPrompting="false">
+		<parameterDescription><![CDATA[The Company Footer]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="INTR_SUBREPORT_DIR" class="java.io.InputStream" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT agn_name,
+		agn_sht_desc,
+        agn_email,
+        agn_postal_address,
+        agn_tel1,
+        agn_pin,
+        agn_status,
+        agn_id_no,
+        acs_tot_net_amt,
+        acs_code,
+        ltr_comm_date_from,
+        ltr_comm_date_to
+FROM lmsagentdb.agents INNER JOIN lmsagentdb.agent_comm_summary ON agn_code = acs_agn_code
+INNER JOIN lmsagentdb.system_transactions ON acs_ltr_trans_no = ltr_trans_no
+WHERE acs_agn_code = $P{agn_code_param}
+AND acs_ltr_trans_no = $P{trans_no_param}]]>
+	</queryString>
+	<field name="agn_name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_sht_desc" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_email" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_postal_address" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_tel1" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_pin" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_status" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="agn_id_no" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acs_tot_net_amt" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acs_code" class="java.lang.Long">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ltr_comm_date_from" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ltr_comm_date_to" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="96" splitType="Stretch">
+			<image>
+				<reportElement x="392" y="10" width="194" height="69" uuid="b7dc19fc-1cb0-4843-a90b-cde4b89d3772"/>
+				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="18" y="24" width="330" height="36" forecolor="#000099" uuid="10ac5571-2ff6-4e9a-9b07-d96afed8b26a"/>
+				<textElement>
+					<font fontName="SansSerif" size="19" isBold="true"/>
+				</textElement>
+				<text><![CDATA[AGENT COMMISSION QUOTATION]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="95" y="66" width="113" height="25" forecolor="#000099" uuid="0004ed1a-3354-4e7b-a158-7e6e661155ad"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{acs_code}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="19" y="66" width="76" height="24" forecolor="#000099" uuid="32f9e4ec-9ff5-45c1-86ae-6f57cf788d41"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Quotation No:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="414" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="153" width="555" height="1" forecolor="#CCCCCC" uuid="fcb0bee0-8891-4161-bbcd-f974b702e3bd"/>
+			</line>
+			<staticText>
+				<reportElement x="14" y="124" width="251" height="24" forecolor="#000099" uuid="c2ddb84d-0875-487a-8796-7d4e482bf236"/>
+				<textElement>
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Agent Commission Breakdown]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="369" y="65" width="70" height="19" forecolor="#000099" uuid="d57b5443-8049-4fc6-a512-96758c1706e7"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Address]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="188" y="64" width="53" height="19" forecolor="#000099" uuid="e99db0fd-388a-4d18-966f-9231323308c4"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tel. No]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="71" y="84" width="113" height="20" forecolor="#000099" uuid="8b30d62d-20c1-49b3-9239-a66d94b9d707"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_id_no}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="45" width="59" height="19" forecolor="#000099" uuid="d500f615-a92f-4107-b693-f615f4073135"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="64" width="59" height="19" forecolor="#000099" uuid="e46360ae-4bf8-45fb-98d2-c50a8def200f"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Email]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="188" y="45" width="53" height="19" forecolor="#000099" uuid="3a856344-1884-43ac-94de-059891556f4b"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Code]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="71" y="65" width="113" height="20" forecolor="#000099" uuid="fe38692f-cf78-4c72-a033-617dad146619"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_email}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="14" y="10" width="113" height="24" forecolor="#000099" uuid="e65805d0-f33d-4b89-b1d6-3d245723f2a5"/>
+				<textElement>
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Agent Details]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="242" y="83" width="117" height="20" forecolor="#000099" uuid="e03b8167-efe9-41c6-9bf2-47a3d5241872"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_pin}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="83" width="59" height="19" forecolor="#000099" uuid="22b88629-277e-49d7-8a30-241bd87ae784"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ID Number]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="242" y="45" width="117" height="20" forecolor="#000099" uuid="0be16638-6a3a-4bb1-9165-0b31da694057"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_sht_desc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="71" y="46" width="113" height="20" forecolor="#000099" uuid="68ed043d-399a-44db-9911-6e64254e1126"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="188" y="83" width="53" height="19" forecolor="#000099" uuid="69c5ad01-4e4e-4c76-90b7-b8c6d05320f3"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PIN]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="242" y="64" width="117" height="20" forecolor="#000099" uuid="3e5f6793-5cb3-4877-b60a-e7ebb0326e59"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_tel1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="439" y="45" width="102" height="20" forecolor="#000099" uuid="bf6c4327-b42c-4fe4-b959-17dc95fb15d9"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_status}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="369" y="45" width="70" height="19" forecolor="#000099" uuid="4f1a1615-b01a-4403-b82f-98d334f9bc2d"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="439" y="65" width="102" height="20" forecolor="#000099" uuid="acd83350-54ba-4463-9450-437a3ede2cd3"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_postal_address}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="14" y="197" width="538" height="127" uuid="ad438043-ab9c-4e0e-80b7-c2fc41fe0f1c"/>
+				<subreportParameter name="agn_code_param">
+					<subreportParameterExpression><![CDATA[$P{agn_code_param}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="trans_no_param">
+					<subreportParameterExpression><![CDATA[$P{trans_no_param}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{INTR_SUBREPORT_DIR}]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="14" y="385" width="210" height="19" forecolor="#000099" uuid="c7ea62d4-595f-4f12-9a1f-4348e3424c05"/>
+				<textElement>
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Commission:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement x="392" y="385" width="149" height="20" forecolor="#000099" uuid="7ce35022-988f-4dc0-a193-3916cf1060ad"/>
+				<textElement>
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{acs_tot_net_amt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="14" y="160" width="334" height="20" forecolor="#000099" uuid="77395a98-b29a-474f-ad39-739a877df2c0"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[The Commission breakdown relates to production for the period from:]]></text>
+			</staticText>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement x="348" y="160" width="72" height="20" forecolor="#000099" uuid="8776f21e-4aa0-4a00-b719-31e8673e3dee"/>
+				<textElement>
+					<font size="8" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ltr_comm_date_from}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="419" y="159" width="19" height="20" forecolor="#000099" uuid="7b5fcdd7-e36f-4f2d-a46e-05369cca51b2"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[to]]></text>
+			</staticText>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement x="437" y="160" width="92" height="20" forecolor="#000099" uuid="2df8bb6a-4167-4fa6-817b-feed5f5eda23"/>
+				<textElement>
+					<font size="8" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ltr_comm_date_to}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="131">
+			<staticText>
+				<reportElement x="302" y="30" width="30" height="24" forecolor="#000099" uuid="a2d57390-1c76-405e-bcc0-39affe527e39"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="31" width="74" height="24" forecolor="#000099" uuid="6854f9bc-5880-48a8-a844-24d6f3dfe1c7"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Prepared By]]></text>
+			</staticText>
+			<line>
+				<reportElement x="83" y="46" width="208" height="1" forecolor="#CCCCCC" uuid="d4822ec4-0947-404d-a5dc-f0ef7fb3fa6c"/>
+			</line>
+			<textField>
+				<reportElement x="83" y="25" width="208" height="20" forecolor="#000099" uuid="200ccf26-c936-4cec-9756-ccd659bfcc2f"/>
+				<textElement>
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_name}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="335" y="45" width="140" height="1" forecolor="#CCCCCC" uuid="fd3a4875-eeaa-4eeb-8138-8dc657ce6e48"/>
+			</line>
+			<staticText>
+				<reportElement x="5" y="81" width="544" height="42" forecolor="#000099" uuid="fa08b23a-d8df-4a4d-a3e1-66bd76a2072c"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Note: This quotation relates to agency services rendered to Geminia Life Insurance Company. Amounts determined in this
+quotations are based on policies sold during the duration specified.]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="104" splitType="Stretch">
+			<image>
+				<reportElement x="4" y="5" width="543" height="98" uuid="209a63c7-e65a-4e4b-b108-81c65a7202e5"/>
+				<imageExpression><![CDATA[$P{logo_footer}]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="18" splitType="Stretch"/>
+	</summary>
+</jasperReport>

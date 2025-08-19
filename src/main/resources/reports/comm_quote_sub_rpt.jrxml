@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="benf_sub_rpt" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0b0fd804-2b2e-420c-a039-3b852871f116">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.awt.ignore.missing.font" value="true"/>
+	<property name="net.sf.jasperreports.default.font.name" value="SansSerif"/>
+	<parameter name="agn_code_param" class="java.lang.Long"/>
+	<parameter name="trans_no_param" class="java.lang.Long"/>
+	<queryString>
+		<![CDATA[SELECT acls_line_item,
+	   acls_credit_amt,
+       acls_debit_amt,
+       acls_agn_code
+FROM lmsagentdb.agent_comm_line_summary
+WHERE acls_agn_code = $P{agn_code_param}
+AND acls_ltr_trans_no = $P{trans_no_param}]]>
+	</queryString>
+	<field name="acls_line_item" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acls_credit_amt" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acls_debit_amt" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acls_agn_code" class="java.lang.Long">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<group name="beneficiaries">
+		<groupExpression><![CDATA[$F{acls_agn_code}]]></groupExpression>
+		<groupHeader>
+			<band height="21">
+				<staticText>
+					<reportElement x="2" y="1" width="249" height="20" forecolor="#000099" uuid="780cf774-544f-42a5-a4ce-600e6954bc12"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Line Items]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="322" y="0" width="100" height="20" forecolor="#000099" uuid="6ad88ee8-0d72-4c24-9b3d-01effcc44136"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Credit Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="422" y="0" width="100" height="20" forecolor="#000099" uuid="f000a34f-d186-4bf4-8c60-cd5ccba347db"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Debit Amount]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="251" height="20" forecolor="#000099" uuid="a9f96fad-a7f7-4aa8-a99d-bc831e3a844b"/>
+				<textFieldExpression><![CDATA[$F{acls_line_item}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="322" y="0" width="100" height="20" forecolor="#000099" uuid="cee156a1-0c76-4b57-b123-f272e415dd6e"/>
+				<textFieldExpression><![CDATA[$F{acls_credit_amt}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="422" y="0" width="100" height="20" forecolor="#000099" uuid="37a03a26-b684-416e-b089-e9e922a1267a"/>
+				<textFieldExpression><![CDATA[$F{acls_debit_amt}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

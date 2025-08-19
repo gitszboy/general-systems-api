@@ -1,0 +1,35 @@
+package com.ag.generalsystemsapi.api.model.payload
+
+import java.util.*
+
+class EntitiesRequest (
+    var entityCode: Long? = null,
+    var entityLevel: String? = null,
+    var entityTitle: String? = null,
+    var entitySurname: String?,
+    var entityOtherNames: String? = null,
+    var entityCorporationName: String?,
+    var entityGender: String? = null,
+    var entityEmail: String?,
+    var entityDateOfBirth: Date?,
+    var entityPrimaryTelephone: String? = null,
+    var entitySecondaryTelephone: String? = null,
+    var entityMaritalStatus: String? = null,
+    var entityOccupation: String? = null,
+    var entityIndustry: String? = null,
+    var entityEmployer: String? = null,
+    var entityPhysicalAddress: String? = null,
+    var entityPostalAddress: String? = null,
+    var entityIDNumber: String? = null,
+    var entityPIN: String? = null,
+    var entityCountry: String? = null,
+    var entityNationality: String? = null,
+    var entityHoldingCoClientCode: String? = null,
+    var entityClientCode: Long? = null,
+    var entityAgentCode: Long? = null,
+    var entityStatus: String? = "D",
+    var entityDateCreated: Date?,
+    var entityCreatedBy: String?,
+    var entityDateInactivated: Date?,
+    var entityInactivatedBy: String?,
+)

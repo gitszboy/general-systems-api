@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="quote_summary" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52783a72-f19b-48ed-be56-cf522596e6d7">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.awt.ignore.missing.font" value="true"/>
+	<property name="net.sf.jasperreports.default.font.name" value="SansSerif"/>
+	<parameter name="quo_code_param" class="java.lang.Long"/>
+	<queryString>
+		<![CDATA[select prp_surname,
+	   prp_email,
+       prp_dob,
+       CASE WHEN quo_freq_of_payment ='M' THEN 'Monthly'
+			WHEN quo_freq_of_payment ='A' THEN 'Annually'
+            WHEN quo_freq_of_payment ='S' THEN 'Semi-Annually'
+            WHEN quo_freq_of_payment ='Q' THEN 'Quarterly'
+            WHEN quo_freq_of_payment ='F' THEN 'Single Payment'
+		END As quo_freq_of_payment,
+       quo_term,
+       COALESCE (quo_tot_sa, 0) quo_tot_sa,
+       COALESCE (quo_tot_premium, 0) quo_tot_premium,
+       COALESCE (rb_amt, 0) rb_amt,
+       COALESCE (tb_amt, 0) tb_amt,
+       agn_name,
+       COALESCE (quo_medicals, 'N') quo_medicals,
+       quo_effective_date,
+       prod_desc
+from quotations INNER JOIN proposers ON quo_prp_code = prp_code
+	 INNER JOIN Products ON quo_prod_code = prod_code
+	 LEFT OUTER JOIN (SELECT qbn_quo_code rb_quo_code, qbn_amt rb_amt FROM lmsagentdb.quotation_bonuses where qbn_type = 'R')rb ON quo_code = rb.rb_quo_code
+	 LEFT OUTER JOIN (SELECT qbn_quo_code tb_quo_code, qbn_amt tb_amt FROM lmsagentdb.quotation_bonuses where qbn_type = 'T')tb ON quo_code = tb.tb_quo_code
+     LEFT OUTER JOIN agents ON quo_agn_code = agn_code
+where quo_code = $P{quo_code_param}]]>
+	</queryString>
+	<field name="prp_surname" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="prp_email" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="prp_dob" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="quo_freq_of_payment" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="quo_term" class="java.lang.Long">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="quo_tot_sa" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="quo_tot_premium" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="rb_amt" class="java.lang.Double"/>
+	<field name="tb_amt" class="java.lang.Double"/>
+	<field name="agn_name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="quo_medicals" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="quo_effective_date" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="prod_desc" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="70" splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="660">
+			<rectangle>
+				<reportElement x="12" y="24" width="531" height="50" backcolor="#00B0F0" uuid="b41c8f74-273e-4ee4-98cf-356a691f60c6"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="22" y="29" width="100" height="20" forecolor="#FFFFFF" uuid="43fa3b30-9a2f-499a-a6ad-c22fae372a1c"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date:]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="147" y="29" width="380" height="20" forecolor="#FFFFFF" uuid="7d04f60e-5d1e-429f-ad75-63f8ef2980d5"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quo_effective_date}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="22" y="50" width="100" height="20" forecolor="#FFFFFF" uuid="da347143-2ac8-4221-b81c-dd42b6773548"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[C/O:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="147" y="50" width="380" height="20" forecolor="#FFFFFF" uuid="4fa16eac-9d49-4106-b7a5-ba86a732d179"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agn_name}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement x="12" y="74" width="531" height="141" uuid="b426aea2-ba75-45b3-a7b9-975518b58a31"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="22" y="83" width="100" height="20" uuid="9b5082ef-e5b8-43c2-aaf8-6176cb68dcbd"/>
+				<textElement>
+					<font size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Client Details]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="23" y="129" width="125" height="20" uuid="db2796ec-8b01-4a59-a485-391b9fddea26"/>
+				<textElement>
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Client Name:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="148" y="129" width="380" height="20" uuid="1b1bb7db-4800-4eba-89de-95687f0cbd84"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prp_surname}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="148" width="125" height="20" uuid="181856a6-1cfe-4448-b82e-dce069b42056"/>
+				<textElement>
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Date of Birth:]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="148" y="148" width="380" height="20" uuid="6e939cf6-734a-4077-9144-322ee26a451b"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prp_dob}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="167" width="125" height="20" uuid="718eb262-4721-4bd6-9058-7bbd727560cf"/>
+				<textElement>
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Policy Term:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="148" y="167" width="380" height="20" uuid="1753cf0f-0e02-45c7-a64f-a331e4a294b9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quo_term}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="110" width="125" height="20" uuid="97a5ad09-76be-4434-8277-35ecd9a08478"/>
+				<textElement>
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Policy Type:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="148" y="110" width="380" height="20" uuid="a92d8e28-ee4c-48c5-8596-adb77a718615"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prod_desc}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement x="12" y="215" width="531" height="163" uuid="2726f648-ba68-450b-8464-ff956818d262"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="23" y="245" width="152" height="20" uuid="66bfb4e9-231c-47fc-8601-d3b9c0a56bc6"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Top"/>
+				<text><![CDATA[ Sum Assured:]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Opaque" x="175" y="245" width="352" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="5f2b8bf8-4828-4e73-bdf1-fd44f82fbd8a"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quo_tot_sa}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="345" width="152" height="20" uuid="10b9fd9d-cef5-46ad-a783-705e061093f8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[ Premium:]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Opaque" x="175" y="345" width="352" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="1da23f37-4c4d-4901-b7dc-867920af9b44"/>
+				<box>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quo_tot_premium}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="265" width="152" height="20" uuid="c474c46c-fe03-4436-ae22-e3e2be1155c3"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[ Terminal Bonuses:]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Opaque" x="175" y="265" width="352" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="789950c4-299d-41a3-aa4a-d6247d7de63e"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tb_amt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="285" width="152" height="20" uuid="6894f0db-f2e2-49cc-91cd-3c6576a05c15"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[ Reversionary Bonues]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Opaque" x="175" y="285" width="352" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="8c1bf4cb-49e2-4cc2-9154-c1fce00aac46"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rb_amt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="23" y="225" width="152" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="e6e9202b-958c-492c-ab35-7abee07b6553"/>
+				<box>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="175" y="225" width="352" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="26ce5ef6-5092-4b06-ba42-efefd60533bb"/>
+				<box>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Figures (KES)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="23" y="305" width="504" height="20" uuid="a842fc05-37c1-4fd6-9b23-f5e598d4b9b7"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Premiums Payable]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="23" y="325" width="152" height="20" uuid="87863e64-a934-4e27-8b91-18bdd03827e8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[ Payment Frequency:]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Opaque" x="175" y="325" width="352" height="20" forecolor="#FFFFFF" backcolor="#00B0F0" uuid="2c8b7eab-857c-49f8-beb7-bd31607ee541"/>
+				<box>
+					<topPen lineWidth="1.0" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quo_freq_of_payment}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="23" y="187" width="125" height="20" uuid="15f4c365-458e-4158-93a6-72bfe3616e27"/>
+				<textElement>
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Sum Assured:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="186" width="380" height="20" uuid="620ce3c9-d7d3-4271-9800-fbfe5009fdd9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[As Illustrated Below]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="12" y="378" width="531" height="271" uuid="fb946752-29ac-415c-a572-8acb6b00dbfb"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="22" y="387" width="506" height="20" uuid="e09bc605-ca57-4ff9-942f-5fbf23a45964"/>
+				<textElement>
+					<font size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Death Benefits]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="406" width="506" height="33" uuid="f13d23e1-130e-4edc-8548-c51f843e2589"/>
+				<textElement>
+					<font size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[The full Sum Assured plus accrued bonuses becomes payable on the death of the Life Assured, should that occur before Maturity Date.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="21" y="439" width="506" height="20" uuid="cd75db44-e792-42af-91d1-14146162adda"/>
+				<textElement>
+					<font size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Survival Benefits]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="21" y="458" width="506" height="33" uuid="3fcf5ef6-7937-433b-a95c-12a4b1c72ec3"/>
+				<textElement>
+					<font size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Based on our current bonus rates (4% Per Annum of Sum Assured), the Total Payout (Maturity Value) from the policy would be Kshs. 84,000,000/=]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="21" y="491" width="506" height="20" uuid="08a4f003-93c4-4c36-9997-2f7b4a0f11ee"/>
+				<textElement>
+					<font size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Surrender Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="21" y="510" width="506" height="74" uuid="291fe143-650e-4ccb-acde-b97ade494d9a"/>
+				<textElement>
+					<font size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Surrender Value, also known as “Cash Value”, can be defined as the amount the policyholder will get from the Life Insurance company if he decides to exit the policy before maturity.
+
+This amount is only applicable to Individual Assurance policies that have been in force for a continuous period of three years.
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="21" y="584" width="506" height="20" uuid="8f034f7c-fbe6-4ecc-aa63-12b38b1b86f1"/>
+				<textElement>
+					<font size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Additional Benefits Under the Policy]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="21" y="603" width="506" height="33" uuid="5506722f-9870-4715-a020-080afa1da133"/>
+				<textElement>
+					<font size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[i.	Tax Relief - The policy qualifies for 15% Income Tax Relief (to a max. of Ksh. 60,000/=) on Annual Premiums paid under the current tax regime]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

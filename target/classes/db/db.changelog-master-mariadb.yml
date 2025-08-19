@@ -1,0 +1,2111 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-account-types-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='account_types'
+      changes:
+        - createTable:
+            tableName: account_types
+            columns:
+              - column:
+                  name: act_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: act_account_type
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-clients-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='clients'
+      changes:
+        - createTable:
+            tableName: clients
+            columns:
+              - column:
+                  name: prp_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: prp_title
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_surname
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_other_names
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_gender
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_email
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_dob
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_tel
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_marital_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_occupation
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_employer
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_physical_addr
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_pin
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_id_image
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_good_health
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_med_condition
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_height
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_weight
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_med_checkup
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_client_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_id_reg_no
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_nationality
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_tq_prp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_good_health_comments
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_med_condition_comments
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_med_checkup_comments
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_additional_comments
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_client_stage
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_pass_reset
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_pass_reset_code
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_pass_reset_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prp_tp_client
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: add-agents-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='agents'
+      changes:
+        - createTable:
+            tableName: agents
+            columns:
+              - column:
+                  name: agn_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: agn_name
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_pass_reset
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_pass_reset_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_pass_reset_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_email
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_physical_address
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_postal_address
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_tel1
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_pin
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_id_no
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_status
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_nic_number
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_act_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "account_types"
+                      baseColumnNames: "act_code"
+                      constraintName: "fk_agn_act_code"
+                      referencedTableName: "agents"
+                      referencedColumnNames: "agn_act_code"
+              - column:
+                  name: agn_brn_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-agent-accounts-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='agent_accounts'
+      changes:
+        - createTable:
+            tableName: agent_accounts
+            columns:
+              - column:
+                  name: agn_acc_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: agn_acc_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_users"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_agn_acc_user_id"
+                      referencedTableName: "agent_accounts"
+                      referencedColumnNames: "agn_acc_id"
+              - column:
+                  name: agn_acc_agn_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "agents"
+                      baseColumnNames: "agn_code"
+                      constraintName: "fk_agn_acc_agn_code"
+                      referencedTableName: "agent_accounts"
+                      referencedColumnNames: "agn_acc_agn_code"
+              - column:
+                  name: agn_acc_active
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_acc_activated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: agn_acc_deactivated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-users-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='system_users'
+      changes:
+        - createTable:
+            tableName: system_users
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: user_full_name
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_username
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_password
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_active
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_email
+                  type: varchar(300)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_type
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_pass_reset
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_pass_reset_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_pass_reset_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-system-roles-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='system_roles'
+      changes:
+        - createTable:
+            tableName: system_roles
+            columns:
+              - column:
+                  name: rl_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: rl_name
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rl_active
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: rl_default
+                  type: boolean
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-system-user-roles-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='system_user_roles'
+      changes:
+        - createTable:
+            tableName: system_user_roles
+            columns:
+              - column:
+                  name: usrl_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: usrl_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_users"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_usrl_user_id"
+                      referencedTableName: "system_user_roles"
+                      referencedColumnNames: "usrl_user_id"
+              - column:
+                  name: usrl_rl_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_roles"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_usrl_rl_id"
+                      referencedTableName: "system_user_roles"
+                      referencedColumnNames: "usrl_rl_id"
+              - column:
+                  name: usrl_active
+                  type: boolean
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-system-areas-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='system_areas'
+      changes:
+        - createTable:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: sa_name
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sa_module
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-serv-req-area-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='service_request_areas'
+      changes:
+        - createTable:
+            tableName: service_request_areas
+            columns:
+              - column:
+                  name: sra_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: sra_name
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sra_active
+                  type: boolean
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-serv-req-types-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='service_request_types'
+      changes:
+        - createTable:
+            tableName: service_request_types
+            columns:
+              - column:
+                  name: srt_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: srt_sra_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "service_request_areas"
+                      baseColumnNames: "sra_id"
+                      constraintName: "fk_srt_sra_id"
+                      referencedTableName: "service_request_types"
+                      referencedColumnNames: "srt_sra_id"
+              - column:
+                  name: srt_type
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: srt_assign_to
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: srt_active
+                  type: boolean
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-serv-req-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='service_requests'
+      changes:
+        - createTable:
+            tableName: service_requests
+            columns:
+              - column:
+                  name: sr_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: sr_srt_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "service_request_types"
+                      baseColumnNames: "srt_id"
+                      constraintName: "fk_sr_srt_id"
+                      referencedTableName: "service_requests"
+                      referencedColumnNames: "sr_srt_id"
+              - column:
+                  name: sr_prp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_pol_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_agn_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_description
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_assign_to
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_assign_comments
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sr_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-portal-nav-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='portal_notifications'
+      changes:
+        - createTable:
+            tableName: portal_notifications
+            columns:
+              - column:
+                  name: pn_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: pn_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_users"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_pn_user_id"
+                      referencedTableName: "portal_notifications"
+                      referencedColumnNames: "pn_user_id"
+              - column:
+                  name: pn_title
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pn_body
+                  type: varchar(2000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pn_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pn_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-organizations-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='organizations'
+      changes:
+        - createTable:
+            tableName: organizations
+            columns:
+              - column:
+                  name: org_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: org_name
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_postal_address
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_physical_address
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_primary_tel
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_secondary_tel
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_mobile_tel
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_pin
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_moto
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_website
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_scheme_name
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_activation_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_deactivation_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-mpesa-callback-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='mpesa_payments'
+      changes:
+        - createTable:
+            tableName: mpesa_payments
+            columns:
+              - column:
+                  name: mpesa_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: mpesa_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_mech_req_id
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_check_req_id
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_result_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_result_desc
+                  type: varchar(2000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_receipt_no
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_telephone
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_receipt_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_receipt_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_processed
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: mpesa_processed_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-file-upload--table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='file_upload_details'
+      changes:
+        - createTable:
+            tableName: file_upload_details
+            columns:
+              - column:
+                  name: fle_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: fle_filename
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: fle_fileUri
+                  type: varchar(2000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: fle_fileDownloadUri
+                  type: varchar(2000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: fle_filesize
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: fle_upload_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-provider-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_roles WHERE rl_name = 'PROVIDER'
+      changes:
+        - insert:
+            tableName: system_roles
+            columns:
+              - column:
+                  name: rl_name
+                  value: PROVIDER
+              - column:
+                  name: rl_active
+                  valueBoolean: true
+              - column:
+                  name: rl_default
+                  valueBoolean: false
+  - changeSet:
+      id: add-admin-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_roles WHERE rl_name = 'ADMINISTRATOR'
+      changes:
+        - insert:
+            tableName: system_roles
+            columns:
+              - column:
+                  name: rl_name
+                  value: ADMINISTRATOR
+              - column:
+                  name: rl_active
+                  valueBoolean: true
+              - column:
+                  name: rl_default
+                  valueBoolean: false
+  - changeSet:
+      id: add-staff-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_roles WHERE rl_name = 'STAFF'
+      changes:
+        - insert:
+            tableName: system_roles
+            columns:
+              - column:
+                  name: rl_name
+                  value: STAFF
+              - column:
+                  name: rl_active
+                  valueBoolean: true
+              - column:
+                  name: rl_default
+                  valueBoolean: false
+  - changeSet:
+      id: add-client-onboarding-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Client Onboarding'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Client Onboarding
+              - column:
+                  name: sa_module
+                  value: BUSINESS ACQUISITION
+  - changeSet:
+      id: add-patient-registration-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Patient Registration'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Patient Registration
+              - column:
+                  name: sa_module
+                  value: CLINICAL ENCOUNTERS
+  - changeSet:
+      id: add-active-visits-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Active Visits'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Active Visits
+              - column:
+                  name: sa_module
+                  value: CLINICAL ENCOUNTERS
+  - changeSet:
+      id: add-hist-visits-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Historical Visits'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Historical Visits
+              - column:
+                  name: sa_module
+                  value: CLINICAL ENCOUNTERS
+  - changeSet:
+      id: add-claims-booking-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Claims Booking'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Claims Booking
+              - column:
+                  name: sa_module
+                  value: CLAIMS MANAGEMENT
+  - changeSet:
+      id: add-claims-tracking-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Claims Tracking'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Claims Tracking
+              - column:
+                  name: sa_module
+                  value: CLAIMS MANAGEMENT
+  - changeSet:
+      id: add-serv-req-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Service Requests'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Service Requests
+              - column:
+                  name: sa_module
+                  value: CLAIMS MANAGEMENT
+  - changeSet:
+      id: add-usr-admin-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'User Administration'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: User Administration
+              - column:
+                  name: sa_module
+                  value: CONFIGURATIONS
+  - changeSet:
+      id: add-srv-admin-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Service Request Administration'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Service Request Administration
+              - column:
+                  name: sa_module
+                  value: CONFIGURATIONS
+  - changeSet:
+      id: add-organization-sys-area-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_areas WHERE sa_name = 'Organizations'
+      changes:
+        - insert:
+            tableName: system_areas
+            columns:
+              - column:
+                  name: sa_name
+                  value: Organizations
+              - column:
+                  name: sa_module
+                  value: CONFIGURATIONS
+  - changeSet:
+      id: add-client-accounts-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='client_accounts'
+      changes:
+        - createTable:
+            tableName: client_accounts
+            columns:
+              - column:
+                  name: clnt_acc_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: clnt_acc_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_users"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_clnt_acc_user_id"
+                      referencedTableName: "client_accounts"
+                      referencedColumnNames: "clnt_acc_user_id"
+              - column:
+                  name: clnt_acc_prp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "proposers"
+                      baseColumnNames: "prp_code"
+                      constraintName: "fk_clnt_acc_prp_code"
+                      referencedTableName: "client_accounts"
+                      referencedColumnNames: "clnt_acc_prp_code"
+              - column:
+                  name: clnt_acc_active
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: clnt_acc_activated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: clnt_acc_deactivated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-org-accounts-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='organization_accounts'
+      changes:
+        - createTable:
+            tableName: organization_accounts
+            columns:
+              - column:
+                  name: org_acc_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: org_acc_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_users"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_org_acc_user_id"
+                      referencedTableName: "organization_accounts"
+                      referencedColumnNames: "org_acc_user_id"
+              - column:
+                  name: org_acc_org_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "organizations"
+                      baseColumnNames: "org_code"
+                      constraintName: "fk_org_acc_org_code"
+                      referencedTableName: "organization_accounts"
+                      referencedColumnNames: "org_acc_org_code"
+              - column:
+                  name: org_acc_active
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_acc_activated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: org_acc_deactivated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-org-default-on-users-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='organizations' AND column_name = 'org_default'
+      changes:
+        - addColumn:
+            tableName: organizations
+            columns:
+              - column:
+                  name: org_default
+                  type: boolean
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-system-role-areas-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='system_role_areas'
+      changes:
+        - createTable:
+            tableName: system_role_areas
+            columns:
+              - column:
+                  name: rla_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: rla_rl_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_roles"
+                      baseColumnNames: "rl_id"
+                      constraintName: "fk_rla_rl_id"
+                      referencedTableName: "system_role_areas"
+                      referencedColumnNames: "rla_rl_id"
+              - column:
+                  name: rla_name
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rla_active
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: rla_create
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: rla_update
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: rla_delete
+                  type: boolean
+                  constraints:
+                    nullable: true
+              - column:
+                  name: rla_read
+                  type: boolean
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-sys-area-column-on-roleareas-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='system_role_areas' AND column_name = 'rla_sa_id'
+      changes:
+        - addColumn:
+            tableName: system_role_areas
+            columns:
+              - column:
+                  name: rla_sa_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_areas"
+                      baseColumnNames: "sa_id"
+                      constraintName: "fk_rla_sa_id"
+                      referencedTableName: "system_role_areas"
+                      referencedColumnNames: "rla_sa_id"
+  - changeSet:
+      id: add-classes-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='classes'
+      changes:
+        - createTable:
+            tableName: classes
+            columns:
+              - column:
+                  name: cla_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: cla_descn
+                  type: varchar(2000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cla_sht_desc
+                  type: varchar(200)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cla_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cla_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-sub-classes-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='sub_classes'
+      changes:
+        - createTable:
+            tableName: sub_classes
+            columns:
+              - column:
+                  name: scl_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: scl_desc
+                  type: varchar(2000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: scl_sht_desc
+                  type: varchar(200)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: scl_cla_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "classes"
+                      baseColumnNames: "cla_code"
+                      constraintName: "fk_scl_cla_code"
+                      referencedTableName: "sub_classes"
+                      referencedColumnNames: "scl_cla_code"
+              - column:
+                  name: scl_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: scl_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prod-sub-classes-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='product_sub_classes'
+      changes:
+        - createTable:
+            tableName: product_sub_classes
+            columns:
+              - column:
+                  name: clp_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: clp_pro_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "products"
+                      baseColumnNames: "pro_code"
+                      constraintName: "fk_clp_pro_code"
+                      referencedTableName: "product_sub_classes"
+                      referencedColumnNames: "clp_pro_code"
+              - column:
+                  name: clp_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_clp_scl_code"
+                      referencedTableName: "product_sub_classes"
+                      referencedColumnNames: "clp_scl_code"
+              - column:
+                  name: clp_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: clp_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: clp_mandatory
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-perils-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='perils'
+      changes:
+        - createTable:
+            tableName: perils
+            columns:
+              - column:
+                  name: per_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: per_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: per_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: per_full_desc
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: per_payment_type
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: per_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: per_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: per_type
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-sections-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='sections'
+      changes:
+        - createTable:
+            tableName: sections
+            columns:
+              - column:
+                  name: sect_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: sect_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sect_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sect_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-binders-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='binders'
+      changes:
+        - createTable:
+            tableName: binders
+            columns:
+              - column:
+                  name: bind_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: bind_agnt_agent_code
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: bind_agnt_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_wef_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_wet_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_bind_scl_code"
+                      referencedTableName: "binders"
+                      referencedColumnNames: "bind_scl_code"
+              - column:
+                  name: bind_remarks
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_name
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_type
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_default
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bind_web_default
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-products-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='products'
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column:
+                  name: pro_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: pro_sht_desc
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pro_desc
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pro_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pro_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-policies-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='policies'
+      changes:
+        - createTable:
+            tableName: policies
+            columns:
+              - column:
+                  name: pol_batch_no
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: pol_policy_no
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_pro_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "products"
+                      baseColumnNames: "pro_code"
+                      constraintName: "fk_pol_pro_code"
+                      referencedTableName: "policies"
+                      referencedColumnNames: "pol_pro_code"
+              - column:
+                  name: pol_prp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "clients"
+                      baseColumnNames: "prp_code"
+                      constraintName: "fk_pol_prp_code"
+                      referencedTableName: "policies"
+                      referencedColumnNames: "pol_prp_code"
+              - column:
+                  name: pol_policy_cover_from
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_policy_cover_to
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_total_sum_insured
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_nett_premium
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_freq_of_payment
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_policy_status
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pol_current_status
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-policy-risks-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='policy_risks'
+      changes:
+        - createTable:
+            tableName: policy_risks
+            columns:
+              - column:
+                  name: ipu_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: ipu_pol_batch_no
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "policies"
+                      baseColumnNames: "pol_batch_no"
+                      constraintName: "fk_ipu_pol_batch_no"
+                      referencedTableName: "policy_risks"
+                      referencedColumnNames: "ipu_pol_batch_no"
+              - column:
+                  name: ipu_property_id
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_item_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_value
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_sec_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_ipu_sec_scl_code"
+                      referencedTableName: "policy_risks"
+                      referencedColumnNames: "ipu_sec_scl_code"
+              - column:
+                  name: ipu_covt_sht_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_prorata
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ipu_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "binders"
+                      baseColumnNames: "bind_code"
+                      constraintName: "fk_ipu_bind_code"
+                      referencedTableName: "policy_risks"
+                      referencedColumnNames: "ipu_bind_code"
+  - changeSet:
+      id: add-clinical-visits-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='clinical_visit'
+      changes:
+        - createTable:
+            tableName: clinical_visit
+            columns:
+              - column:
+                  name: cv_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: cv_ipu_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "policy_risks"
+                      baseColumnNames: "ipu_code"
+                      constraintName: "fk_cv_ipu_code"
+                      referencedTableName: "clinical_visit"
+                      referencedColumnNames: "cv_ipu_code"
+              - column:
+                  name: cv_org_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "organizations"
+                      baseColumnNames: "org_code"
+                      constraintName: "fk_cv_org_code"
+                      referencedTableName: "clinical_visit"
+                      referencedColumnNames: "cv_org_code"
+              - column:
+                  name: cv_visit_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_visit_details
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_visit_type
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_billable
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_current_service
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_complaints
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_examinations
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_clinical_diagnosis
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_final_diagnosis
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_total_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_insured_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_excess_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cv_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-clinical-visit-column
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='lmsagentdb' AND table_name='clinical_visit' AND column_name = 'cv_date'
+      changes:
+        - addColumn:
+            tableName: clinical_visit
+            columns:
+              - column:
+                  name: cv_date
+                  type: datetime
+                  constraints:
+                    nullable: true

@@ -1,0 +1,168 @@
+<dataTemplate dataSourceRef="aiicolife" name="agecom" defaultPackage="reports_parameters">
+	<properties>
+		<property name="xml_tag_case" value="upper" />
+	</properties>
+	<parameters>
+		<parameter name="V_TRANS_NO" dataType="integer" />
+		<parameter name="V_BRN_CODE" dataType="integer" />
+		<parameter name="V_AGN_CODE" dataType="integer" />
+	</parameters>
+	<lexicals></lexicals>
+	<dataQuery>
+
+		<sqlStatement name="Q_2">
+
+
+			<![CDATA[
+
+SELECT LCR_TRANS_NO, LCR_POLICY_NO, LCR_PROPOSER, LCR_RECEIPTNO, LCR_POL_EFFECTIVE_DATE,LCR_TERM,
+            LCR_MODAL_PREMIUM,LCR_SA,LCR_PREMIUM_PAID,LCR_RATE,
+            LCR_DATE_PAID, LCR_PERIOD,
+            LCR_FYCOMM,LCR_REWCOMM,LCR_OVCOMM,
+            LCR_FYPREM, LCR_REWPREM,
+            LCR_COMMISSION, LCR_CRAMT,
+            LCR_DRAMT, LCR_WITHHOLDING_TAX, LCR_WITHHOLDINGTAXCR, LCR_WITHHOLDINGTAXDR, LCR_MNTH,
+            LCR_CAPIN_AMT, LCR_AGN_CODE,
+            LCR_VALID_NEW, LCR_BRN_CODE,LCR_AGN_NAME,LCR_AGENCY_CODE,LCR_AGN_PHYSICAL_ADDR, LCR_BANK,LCR_ACCOUNT_NO,LCR_BRANCH,LCR_CF_REPORT_TITLE,LCR_COP_PREMDED,
+            LCR_COP_PREMDED_YTD, LCR_COP_COMM_AMT_YTD, LCR_NETCOMM_AMT_YTD,
+            LCR_NET_COM, LCR_PAYABLE_AMT,
+            LCR_CUR_SYMBOL, LCR_CAPIN_AMT_YTD, LCR_OPNETCOMM_AMT,LCR_OVRIDE_WHDTAX_AMT,LCR_OVCAPIN_AMT,LCR_OVCAPINCMPY,LCR_COMMTYPE,
+            LCR_ADVANCE_PYMT, LCR_OPRCODE, LCR_BONUS_AMT, LCR_DIFF,
+            LCR_GROSSCOM,
+            LCR_CAPIN_CMPYAMT,
+            LCR_NEW_CAPIN_AMT,LCR_NEW_WHTX_AMT,
+			NVL(LCR_MISC_AMT,0) LCR_MISC_AMT
+FROM LMS_COMM_RPT
+WHERE LCR_TRANS_NO = :V_TRANS_NO
+AND lcr_brn_code = NVL ( :V_BRN_CODE, LCR_BRN_CODE)
+AND NVL(LCR_AGN_CODE,-1) = NVL(:V_AGN_CODE,NVL(LCR_AGN_CODE,-1))
+AND LCR_AGN_CODE =  DECODE(NVL ( :V_AGN_CODE, '-2000'),'-2000',
+(select agn_code from lms_agencies where LCR_AGN_CODE = AGN_CODE ),'-3000',
+(select agn_code from lms_agencies where LCR_AGN_CODE = AGN_CODE and agn_act_code = 3),:V_AGN_CODE)
+ORDER BY LCR_AGENCY_CODE,LCR_VALID_NEW,LCR_POLICY_NO,LCR_MNTH,LCR_PERIOD
+
+
+]]>
+
+		</sqlStatement>
+		<sqlStatement name="Q_6">
+			<![CDATA[
+SELECT ORG_NAME ORGANIZATION,'Commission Statement For Month'||' '||trim(TO_CHAR((select LTR_COMM_DATE_TO
+     from LMS_TRANSACTIONS
+     where LTR_TRANS_NO = :V_TRANS_NO),'MM/rrrr'))RUN_MONTH,
+       ORG_PHY_ADDRS,
+       ORG_ADDRS || ' , ' || ORG_ZIP || ' - ' || TWN_NAME || ' , ' ||
+       COU_NAME POSTALADDRESS,
+       'TELEPHONE' || ':' || ORG_TEL1 ||
+       DECODE(ORG_TEL2, NULL, NULL, ' /' || ORG_TEL2) TELEPHONE,
+       'FAX' || ':' || ORG_FAX FAX,
+        LOWER(ORG_EMAIL_ADDRS) EMAIL,
+       ORG_RPT_LOGO LOGO,
+       LOWER(ORG_WEB_ADDRS) WEB
+  FROM TQC_ORGANIZATIONS, TQC_COUNTRIES, TQC_TOWNS, TQC_SYSTEMS       
+ WHERE ORG_TWN_CODE = TWN_CODE
+   AND ORG_COU_CODE = COU_CODE
+   AND SYS_ORG_CODE = ORG_CODE
+   AND SYS_SHT_DESC = 'LMS'
+   ]]>
+		</sqlStatement>
+	</dataQuery>
+	<dataStructure>
+		<group name="G_COMPANY_LEVEL" dataType="varchar2" source="Q_2">
+			<group name="G_AGENT_NAME" dataType="varchar2" source="Q_2">
+				<element name="AGN_CODE" dataType="number" value="LCR_AGN_CODE" />
+				<element name="AGN_PHYSICAL_ADDRESS" dataType="varchar2" value="LCR_AGN_PHYSICAL_ADDR" />
+				<element name="AGENT_NAME" dataType="varchar2" value="LCR_AGN_NAME" />
+				<element name="AGENCY_CODE" dataType="varchar2" value="LCR_AGENCY_CODE" />
+				<element name="UNIT_CODE" dataType="varchar2" value="LCR_UNIT_CODE" />
+				<element name="BANK" dataType="varchar2" value="LCR_BANK" />
+				<element name="ACCOUNT_NO" dataType="varchar2" value="LCR_ACCOUNT_NO" />
+				<element name="CF_REPORT_TITLE" dataType="varchar2" value="LCR_CF_REPORT_TITLE" />
+				<element name="TOT_COMMISSION" function="sum" dataType="number" value="G_POLICY_NO.COMMISSION" />
+				<element name="TOT_WITHHOLDING_TAX" function="sum" dataType="number" value="G_POLICY_NO.WITHHOLDING_TAX" />
+				<element name="CS_ADVANCE_AMOUNT" function="sum" dataType="number" value="LCR_ADVANCE_PYMT" />
+				<element name="CF_NET_COMMISSION" dataType="number" value="LCR_CF_NET_COMMISSION" />
+				<element name="CF_NET_COMMISSION" dataType="number" value="LCR_CF_NET_COMMISSION" />
+				<element name="CF_NET_COMMISSION" dataType="number" value="LCR_CF_NET_COMMISSION" />
+				<group name="G_PERIOD" dataType="varchar2" source="Q_2">
+					<element name="PERIOD" dataType="number" value="LCR_PERIOD" />
+					<group name="G_POLICY_NO" dataType="varchar2" source="Q_2">
+						<element name="PREMIUM_PAID" dataType="number" value="LCR_PREMIUM_PAID" />
+						<element name="MODAL_PREMIUM" dataType="number" value="LCR_MODAL_PREMIUM" />
+						<element name="DIFF" dataType="varchar2" value="LCR_DIFF" />
+						<element name="POLICY_NO" dataType="varchar2" value="LCR_POLICY_NO" />
+						<element name="RECEIPTNO" dataType="varchar2" value="LCR_RECEIPTNO" />
+						<element name="PROPOSER" dataType="varchar2" value="LCR_PROPOSER" />
+						<element name="RATE" dataType="number" value="LCR_RATE" />
+						<element name="COMMISSION" dataType="number" value="LCR_COMMISSION" />
+						<element name="GROSSCOM" dataType="number" value="LCR_GROSSCOM" />
+						<element name="CAPIN_AMT" dataType="number" value="LCR_CAPIN_AMT" />
+						<element name="CAPIN_CMPYAMT" dataType="number" value="LCR_CAPIN_CMPYAMT" />
+						<element name="WITHHOLDING_TAX" dataType="number" value="LCR_WITHHOLDING_TAX" />
+						<element name="BRN_CODE" dataType="number" value="LCR_BRN_CODE" />
+						<element name="RECEIPT_NO" dataType="varchar2" value="LCR_RECEIPTNO" />
+						<element name="DATE_PAID" dataType="date" value="LCR_DATE_PAID" />
+						<element name="EFFECTIVE_DATE" dataType="date" value="LCR_POL_EFFECTIVE_DATE" />
+						<element name="CRAMT" dataType="number" value="LCR_CRAMT" />
+						<element name="DRAMT" dataType="number" value="LCR_DRAMT" />
+						<element name="WITHHOLDINGTAXCR" dataType="number" value="LCR_WITHHOLDINGTAXCR" />
+						<element name="WITHHOLDINGTAXDR" dataType="number" value="LCR_WITHHOLDINGTAXDR" />
+						<element name="MNTH" dataType="number" value="LCR_MNTH" />
+						<element name="PREMIUM_PAID1" function="sum" dataType="number" value="LCR_PREMIUM_PAID" />
+						<element name="CRAMT1" function="sum" dataType="number" value="LCR_CRAMT" />
+						<element name="DRAMT1" function="sum" dataType="number" value="LCR_DRAMT" />
+						<element name="REWCOMM" dataType="number" value="LCR_REWCOMM" />
+						<element name="FYCOMM" dataType="number" value="LCR_FYCOMM" />
+						<element name="REWPREM" dataType="number" value="LCR_REWPREM" />
+						<element name="FYPREM" dataType="number" value="LCR_FYPREM" />
+						<element name="OVCAPIN_AMT" dataType="number" value="LCR_OVCAPIN_AMT" />
+						<element name="OVCAPINCMPY" dataType="number" value="LCR_OVCAPINCMPY" />
+						<element name="OVTAX_AMT" dataType="number" value="LCR_OVRIDE_WHDTAX_AMT" />
+					</group>
+					<element name="PREMIUM_PAID2" function="sum" dataType="number" value="LCR_PREMIUM_PAID" />
+					<element name="CRAMT2" function="sum" dataType="number" value="LCR_CRAMT" />
+					<element name="DRAMT2" function="sum" dataType="number" value="LCR_DRAMT" />
+					<element name="COMMISSION2" function="sum" dataType="number" value="LCR_COMMISSION" />
+				</group>
+				<element name="WITHHOLDINGTAX1" function="sum" dataType="number" value="LCR_WITHHOLDING_TAX" />
+				<element name="CAPIN_AMT1" function="sum" dataType="number" value="LCR_CAPIN_AMT" />
+				<element name="OVCAPIN_AMT1" dataType="number" value="LCR_OVCAPIN_AMT" />
+				<element name="CAPIN_CMPYAMT1" function="sum" dataType="number" value="LCR_CAPIN_CMPYAMT" />
+				<element name="OVCAPIN_CMPYAMT1" dataType="number" value="LCR_OVCAPINCMPY" />
+				<element name="BONUS_AMT" dataType="number" value="LCR_BONUS_AMT" />
+				<element name="OVTAX_AMT1" dataType="number" value="LCR_OVRIDE_WHDTAX_AMT" />
+				<element name="COMMISSION1" function="sum" dataType="number" value="LCR_GROSSCOM" />
+				<element name="REWCOMM2" function="sum" dataType="number" value="G_POLICY_NO.REWCOMM" />
+				<element name="FYCOMM2" function="sum" dataType="number" value="G_POLICY_NO.FYCOMM" />
+				<element name="REWPREM2" function="sum" dataType="number" value="G_POLICY_NO.REWPREM" />
+				<element name="FYPREM2" function="sum" dataType="number" value="G_POLICY_NO.FYPREM" />
+				<element name="COP_PREMDED" dataType="number" value="LCR_COP_PREMDED" />
+				<element name="ADVANCE_PYMT" dataType="number" value="LCR_ADVANCE_PYMT" />
+				<element name="MISC_AMT" dataType="number" value="LCR_MISC_AMT" />
+				<element name="COP_PREMDED_YTD" dataType="number" value="LCR_COP_PREMDED_YTD" />
+				<element name="COP_COMM_AMT_YTD" dataType="number" value="LCR_COP_COMM_AMT_YTD" />
+				<element name="NETCOMM_AMT_YTD" dataType="number" value="LCR_NETCOMM_AMT_YTD" />
+				<element name="CAPIN_AMT_YTD" dataType="number" value="LCR_CAPIN_AMT_YTD" />
+				<element name="OPNETCOMM_AMT" dataType="number" value="LCR_OPNETCOMM_AMT" />
+				<element name="NET_COM" dataType="number" value="LCR_NET_COM" />
+				<element name="CUR_SYMBOL" dataType="varchar2" value="LCR_CUR_SYMBOL" />
+			</group>
+			<element name="TOT_GROSS_COMM" function="sum" dataType="number" value="G_AGENT_NAME.COMMISSION1" />
+			<element name="TOT_NET_COMM" function="sum" dataType="number" value="G_AGENT_NAME.NET_COM" />
+
+
+		</group>
+		<group name="G_Organization" dataType="varchar2" source="Q_6">
+			<element name="Organization" dataType="varchar2" value="ORGANIZATION" />
+			<element name="ORG_PHY_ADDRS" dataType="varchar2" value="ORG_PHY_ADDRS" />
+			<element name="WEB" dataType="varchar2" value="WEB" />
+			<element name="postaladdress" dataType="varchar2" value="POSTALADDRESS" />
+			<element name="Telephone" dataType="varchar2" value="TELEPHONE" />
+			<element name="Fax" dataType="varchar2" value="FAX" />
+			<element name="email" dataType="varchar2" value="EMAIL" />
+			<element name="RUN_MONTH" dataType="varchar2" value="RUN_MONTH" />
+			--
+			<element name="logo" dataType="longRaw" value="LOGO" />
+		</group>
+	</dataStructure>
+</dataTemplate>

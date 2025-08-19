@@ -1,0 +1,189 @@
+<dataTemplate dataSourceRef="aiicolife" name="actrlEndw" defaultPackage="reports_parameters">
+<properties>
+<property name="xml_tag_case" value="upper"/>
+</properties>
+<parameters>
+		<parameter name="V_TRANS_NO" dataType="integer" />
+		<parameter name="V_AGN_CODE" dataType="integer" />
+</parameters>
+<lexicals>
+</lexicals>
+<dataQuery>
+<sqlStatement name="Q_3"> 
+    <![CDATA[
+    SELECT UPPER(ORG_NAME)ORG_NAME,ORG_PHY_ADDRS,
+    ORG_ADDRS POSTALADDRESS, 
+    'Telephone'||':'||ORG_TEL1||DECODE(ORG_TEL2 ,NULL,NULL,' /'||ORG_TEL2) TELEPHONE,  
+    'Fax'||':'||ORG_FAX FAX, 
+    'E-mail'||':'||lower(ORG_EMAIL_ADDRS) EMAIL,ORG_RPT_LOGO LOGO
+    from TQC_ORGANIZATIONS, TQC_COUNTRIES, TQC_TOWNS, TQC_SYSTEMS
+    where ORG_TWN_CODE = TWN_CODE
+    and ORG_COU_CODE = COU_CODE
+    and SYS_ORG_CODE = ORG_CODE
+    and SYS_SHT_DESC = 'LMS'
+    ]]>
+</sqlStatement>
+    <sqlStatement name="Q1">
+ <![CDATA[  
+ SELECT --LCR_TRANS_NO,
+--         LCR_POLICY_NO,
+--         LCR_PROPOSER,
+--         LCR_RECEIPTNO,
+--         LCR_POL_EFFECTIVE_DATE,
+--         LCR_TERM,
+--         LCR_MODAL_PREMIUM,
+--         LCR_SA,
+--         LCR_PREMIUM_PAID,
+--         LCR_RATE,
+         (SELECT regexp_replace(TO_CHAR(COP_DATE, 'Month - YYYY'), '[[:space:]]*','') FROM LMS_COMMISSION_PYMTS WHERE COP_TRANS_NO = LCR_TRANS_NO AND COP_AGN_CODE = LCR_AGN_CODE) LCR_DATE_PAID,
+--         LCR_PERIOD,
+--         LCR_FYCOMM,
+--         LCR_REWCOMM,
+--         LCR_OVCOMM,
+--         LCR_FYPREM,
+--         LCR_REWPREM,
+         SUM(LCR_COMMISSION) LCR_COMMISSION,
+--         LCR_CRAMT,
+--         LCR_DRAMT,
+         SUM(LCR_WITHHOLDING_TAX) LCR_WITHHOLDING_TAX,
+--         LCR_WITHHOLDINGTAXCR,
+--         LCR_WITHHOLDINGTAXDR,
+--         LCR_MNTH,
+--         LCR_CAPIN_AMT,
+--         LCR_AGN_CODE,
+--         LCR_VALID_NEW,
+--         LCR_BRN_CODE,
+         LCR_AGN_NAME,
+         LCR_AGENCY_CODE,
+         (SELECT AGN_PIN FROM LMS_AGENCIES WHERE AGN_CODE = LCR_AGN_CODE) LCR_AGN_PIN,
+--         LCR_AGN_PHYSICAL_ADDR,
+         (SELECT BNK_BANK_NAME FROM TQC_BANKS WHERE BNK_BANK_NAME LIKE '%'||REGEXP_SUBSTR(LCR_BANK, '[^ - ]*')||'%') LCR_BANK,
+         (SELECT BBR_BRANCH_NAME FROM TQC_BANK_BRANCHES WHERE BBR_CODE = (SELECT AGN_BBR_CODE FROM LMS_AGENCIES WHERE AGN_CODE = LCR_AGN_CODE)) LCR_BANK_BRANCH,
+         (SELECT BNK_KBA_CODE FROM TQC_BANKS WHERE BNK_BANK_NAME LIKE '%'||REGEXP_SUBSTR(LCR_BANK, '[^ - ]*')||'%') LCR_BANK_CODE,
+         (SELECT BBR_REF_CODE FROM TQC_BANK_BRANCHES WHERE BBR_CODE = (SELECT AGN_BBR_CODE FROM LMS_AGENCIES WHERE AGN_CODE = LCR_AGN_CODE)) LCR_BANK_BRANCH_CODE,
+         LCR_ACCOUNT_NO,
+         LCR_BRANCH,
+--         LCR_CF_REPORT_TITLE,
+--         LCR_COP_PREMDED,
+--         LCR_COP_PREMDED_YTD,
+--         LCR_COP_COMM_AMT_YTD,
+--         LCR_NETCOMM_AMT_YTD,
+--         LCR_NET_COM,
+--         LCR_PAYABLE_AMT,
+--         LCR_CUR_SYMBOL,
+--         LCR_CAPIN_AMT_YTD,
+--         LCR_OPNETCOMM_AMT,
+--         LCR_OVRIDE_WHDTAX_AMT,
+--         LCR_OVCAPIN_AMT,
+--         LCR_OVCAPINCMPY,
+--         LCR_COMMTYPE,
+         LCR_ADVANCE_PYMT
+--         LCR_OPRCODE,
+--         LCR_BONUS_AMT,
+--         LCR_DIFF,
+--         LCR_GROSSCOM,
+--         LCR_CAPIN_CMPYAMT,
+--         LCR_NEW_CAPIN_AMT,
+--         LCR_NEW_WHTX_AMT,
+--         NVL (LCR_MISC_AMT, 0)     LCR_MISC_AMT
+    FROM LMS_COMM_RPT
+   WHERE     LCR_TRANS_NO = :V_TRANS_NO
+         
+         --AND NVL(LCR_AGN_CODE,-1) = NVL(:V_AGN_CODE,NVL(LCR_AGN_CODE,-1))
+         AND LCR_AGN_CODE =
+             DECODE (
+                 NVL ( :V_AGN_CODE, '-2000'),
+                 '-2000', (SELECT agn_code
+                             FROM lms_agencies
+                            WHERE LCR_AGN_CODE = AGN_CODE),
+                 '-3000', (SELECT agn_code
+                             FROM lms_agencies
+                            WHERE LCR_AGN_CODE = AGN_CODE AND agn_act_code = 3),
+                 :V_AGN_CODE)
+GROUP BY LCR_BANK,
+         LCR_AGN_NAME,
+         LCR_AGN_CODE,
+         LCR_AGENCY_CODE,
+         LCR_BRANCH,
+         LCR_ACCOUNT_NO,
+         LCR_TRANS_NO,
+         LCR_ADVANCE_PYMT
+        ]]>
+    </sqlStatement>
+	   
+</dataQuery>
+    <dataStructure>
+<group name="G_ORGANIZATION" dataType="varchar2" source="Q_3">
+	   <element name="ORG_NAME" dataType="varchar2" value="ORG_NAME"/>
+	   <element name="ORG_PHY_ADDRS" dataType="varchar2" value="ORG_PHY_ADDRS"/>
+	   <element name="POSTALADDRESS" dataType="varchar2" value="POSTALADDRESS"/>
+	   <element name="TELEPHONE" dataType="varchar2" value="TELEPHONE"/>
+	   <element name="FAX" dataType="varchar2" value="FAX"/>
+	   <element name="EMAIL" dataType="varchar2" value="EMAIL"/>
+	   <element name="LOGO" dataType="longRaw" value="LOGO"/>
+</group>
+<group name="G_AC" dataType="varchar2" source="Q1">
+	<element name="LCR_TRANS_NO" dataType="varchar2" value="LCR_TRANS_NO"/>
+	<element name="LCR_POLICY_NO" dataType="varchar2" value="LCR_POLICY_NO"/>
+	<element name="LCR_PROPOSER" dataType="varchar2" value="LCR_PROPOSER"/>
+	<element name="LCR_RECEIPTNO" dataType="varchar2" value="LCR_RECEIPTNO"/>
+	<element name="LCR_POL_EFFECTIVE_DATE" dataType="varchar2" value="LCR_POL_EFFECTIVE_DATE"/>
+	<element name="LCR_TERM" dataType="varchar2" value="LCR_TERM"/>
+	<element name="LCR_MODAL_PREMIUM" dataType="varchar2" value="LCR_MODAL_PREMIUM"/>
+	<element name="LCR_SA" dataType="varchar2" value="LCR_SA"/>
+	<element name="LCR_PREMIUM_PAID" dataType="varchar2" value="LCR_PREMIUM_PAID"/>
+	<element name="LCR_RATE" dataType="varchar2" value="LCR_RATE"/>
+	<element name="LCR_DATE_PAID" dataType="varchar2" value="LCR_DATE_PAID"/>
+	<element name="LCR_PERIOD" dataType="varchar2" value="LCR_PERIOD"/>
+	<element name="LCR_FYCOMM" dataType="varchar2" value="LCR_FYCOMM"/>
+	<element name="LCR_REWCOMM" dataType="varchar2" value="LCR_REWCOMM"/>
+	<element name="LCR_OVCOMM" dataType="varchar2" value="LCR_OVCOMM"/>
+	<element name="LCR_FYPREM" dataType="varchar2" value="LCR_FYPREM"/>
+	<element name="LCR_REWPREM" dataType="varchar2" value="LCR_REWPREM"/>
+	<element name="LCR_COMMISSION" dataType="varchar2" value="LCR_COMMISSION"/>
+	<element name="LCR_CRAMT" dataType="varchar2" value="LCR_CRAMT"/>
+	<element name="LCR_DRAMT" dataType="varchar2" value="LCR_DRAMT"/>
+	<element name="LCR_WITHHOLDING_TAX" dataType="varchar2" value="LCR_WITHHOLDING_TAX"/>
+	<element name="LCR_WITHHOLDINGTAXCR" dataType="varchar2" value="LCR_WITHHOLDINGTAXCR"/>
+	<element name="LCR_WITHHOLDINGTAXDR" dataType="varchar2" value="LCR_WITHHOLDINGTAXDR"/>
+	<element name="LCR_MNTH" dataType="varchar2" value="LCR_MNTH"/>
+	<element name="LCR_CAPIN_AMT" dataType="varchar2" value="LCR_CAPIN_AMT"/>
+	<element name="LCR_AGN_CODE" dataType="varchar2" value="LCR_AGN_CODE"/>
+	<element name="LCR_AGN_PIN" dataType="varchar2" value="LCR_AGN_PIN"/>
+	<element name="LCR_VALID_NEW" dataType="varchar2" value="LCR_VALID_NEW"/>
+	<element name="LCR_BRN_CODE" dataType="varchar2" value="LCR_BRN_CODE"/>
+	<element name="LCR_AGN_NAME" dataType="varchar2" value="LCR_AGN_NAME"/>
+	<element name="LCR_AGENCY_CODE" dataType="varchar2" value="LCR_AGENCY_CODE"/>
+	<element name="LCR_AGN_PHYSICAL_ADDR" dataType="varchar2" value="LCR_AGN_PHYSICAL_ADDR"/>
+	<element name="LCR_BANK" dataType="varchar2" value="LCR_BANK"/>
+	<element name="LCR_BANK_BRANCH" dataType="varchar2" value="LCR_BANK_BRANCH"/>
+	<element name="LCR_BANK_CODE" dataType="varchar2" value="LCR_BANK_CODE"/>
+	<element name="LCR_BANK_BRANCH_CODE" dataType="varchar2" value="LCR_BANK_BRANCH_CODE"/>
+	<element name="LCR_ACCOUNT_NO" dataType="varchar2" value="LCR_ACCOUNT_NO"/>
+	<element name="LCR_BRANCH" dataType="varchar2" value="LCR_BRANCH"/>
+	<element name="LCR_CF_REPORT_TITLE" dataType="varchar2" value="LCR_CF_REPORT_TITLE"/>
+	<element name="LCR_COP_PREMDED" dataType="varchar2" value="LCR_COP_PREMDED"/>
+	<element name="LCR_COP_PREMDED_YTD" dataType="varchar2" value="LCR_COP_PREMDED_YTD"/>
+	<element name="LCR_COP_COMM_AMT_YTD" dataType="varchar2" value="LCR_COP_COMM_AMT_YTD"/>
+	<element name="LCR_NETCOMM_AMT_YTD" dataType="varchar2" value="LCR_NETCOMM_AMT_YTD"/>
+	<element name="LCR_NET_COM" dataType="varchar2" value="LCR_NET_COM"/>
+	<element name="LCR_PAYABLE_AMT" dataType="varchar2" value="LCR_PAYABLE_AMT"/>
+	<element name="LCR_CUR_SYMBOL" dataType="varchar2" value="LCR_CUR_SYMBOL"/>
+	<element name="LCR_CAPIN_AMT_YTD" dataType="varchar2" value="LCR_CAPIN_AMT_YTD"/>
+	<element name="LCR_OPNETCOMM_AMT" dataType="varchar2" value="LCR_OPNETCOMM_AMT"/>
+	<element name="LCR_OVRIDE_WHDTAX_AMT" dataType="varchar2" value="LCR_OVRIDE_WHDTAX_AMT"/>
+	<element name="LCR_OVCAPIN_AMT" dataType="varchar2" value="LCR_OVCAPIN_AMT"/>
+	<element name="LCR_OVCAPINCMPY" dataType="varchar2" value="LCR_OVCAPINCMPY"/>
+	<element name="LCR_COMMTYPE" dataType="varchar2" value="LCR_COMMTYPE"/>
+	<element name="LCR_ADVANCE_PYMT" dataType="varchar2" value="LCR_ADVANCE_PYMT"/>
+	<element name="LCR_OPRCODE" dataType="varchar2" value="LCR_OPRCODE"/>
+	<element name="LCR_BONUS_AMT" dataType="varchar2" value="LCR_BONUS_AMT"/>
+	<element name="LCR_DIFF" dataType="varchar2" value="LCR_DIFF"/>
+	<element name="LCR_GROSSCOM" dataType="varchar2" value="LCR_GROSSCOM"/>
+	<element name="LCR_CAPIN_CMPYAMT" dataType="varchar2" value="LCR_CAPIN_CMPYAMT"/>
+	<element name="LCR_NEW_CAPIN_AMT" dataType="varchar2" value="LCR_NEW_CAPIN_AMT"/>
+	<element name="LCR_NEW_WHTX_AMT" dataType="varchar2" value="LCR_NEW_WHTX_AMT"/>
+	<element name="LCR_MISC_AMT" dataType="varchar2" value="LCR_MISC_AMT"/>
+</group>
+</dataStructure>
+</dataTemplate>

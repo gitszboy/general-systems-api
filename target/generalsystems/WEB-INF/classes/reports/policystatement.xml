@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataTemplate dataSourceRef="aiicolms" name="premcard" defaultPackage="reports_parameters">
+<properties>
+<property name="xml_tag_case" value="upper"/>
+</properties>
+<parameters>
+<parameter name="V_POL_CODE" dataType="integer"/>
+</parameters>
+<lexicals>
+</lexicals>
+<dataQuery>
+<sqlStatement name="Q_1">
+<![CDATA[
+select ORG_NAME,ORG_PHY_ADDRS,
+ORG_ADDRS||' - '||ORG_ZIP||' , '||TWN_NAME||' , '||COU_NAME POSTALADDRESS , 
+'Telephone'||':'||ORG_TEL1||DECODE(ORG_TEL2 ,NULL,NULL,' /'||ORG_TEL2) TELEPHONE,  
+'Fax'||':'||ORG_FAX FAX, 
+'E-mail'||':'||lower(ORG_EMAIL_ADDRS) EMAIL,ORG_RPT_LOGO LOGO,
+COU_NAME COUNTRY,CUR_SYMBOL,INITCAP(REPLACE(ORG_NAME,'PRUDENTIAL',''))FOOTER
+from TQC_ORGANIZATIONS, TQC_COUNTRIES, TQC_TOWNS,TQC_SYSTEMS,
+TQC_CURRENCIES
+where ORG_TWN_CODE = TWN_CODE
+and ORG_COU_CODE = COU_CODE
+and SYS_ORG_CODE = ORG_CODE
+and ORG_CUR_CODE=CUR_CODE
+and SYS_SHT_DESC = 'LMS'
+]]>
+</sqlStatement>
+    <sqlStatement name="Q_2">
+        <![CDATA[
+/* Formatted on 6/30/2020 11:38:48 AM (QP5 v5.336) */
+SELECT POL_POLICY_NO
+           POLNO,
+       POL_PAID_INSTLMT_NO,
+       (SELECT AGN_NAME FROM TQC_AGENCIES WHERE AGN_CODE = ENDR_AGEN_CODE) MARKETER,
+       PRP_SURNAME || ' ' || PRP_OTHER_NAMES || ' ' || PRP_FIRST_NAME
+           CLIENT,
+       PRP_TEL,
+       PRP_EMAIL,
+       ENDR_TOT_SA,
+       (SELECT PROD_DESC FROm LMS_PRODUCTS WHERE PROD_CODE=POL_PROD_CODE) PROD_DESC,
+       TO_CHAR (POL_EFFECTIVE_DATE, 'DD-Mon-yyyy')
+           COVERFROM,
+       (  NVL (lms_ord_misc.inst_prem (pol_code, endr_code), 0)
+        + NVL (
+              lms_process_receipts.pol_holder_alloc (pol_code,
+                                                     'INST',
+                                                     endr_code),
+              0))
+           ENDR_TOT_PREMIUM,
+       TO_CHAR (ENDR_COVER_TO_DATE, 'DD-Mon-yyyy')
+           COVERTO,
+       ENDR_ANB,
+       TO_CHAR (SYSDATE, 'DD-Mon-yyyy')
+           TODAY,
+       CASE 
+WHEN POL_STATUS = 'A'  THEN (SELECT SUM (NVL (PBN_AMT, 0))
+            FROM LMS_POLICY_BONUS
+           WHERE PBN_POL_CODE = POL_CODE AND PBN_APPLCTN_LEVEL='A')
+             
+WHEN POL_STATUS = 'L'  THEN 0
+
+END  POL_PSA_BONUS,
+       DECODE (NVL (POL_FREQ_OF_PAYMENT, 'M'),
+               'M', 'MONTHLY',
+               'Q', 'QUARTERLY',
+               'S', 'SEMI-ANNUALLY',
+               'A', 'ANNUALLY',
+               'F', 'SINGLE PREMIUM',
+               'MONTHLY')
+           FREQUENCY_OF_PAYMENT,
+       TO_CHAR (POL_PAID_TO_DATE, 'DD-Mon-yyyy')
+           POL_PAID_TO_DATE,
+       DECODE (POL_STATUS,
+               'D', 'DRAFT',
+               'A', 'ACTIVE',
+               'R', 'REINSTATED',
+               'S', 'SURRENDERED',
+               'L', 'LAPSED',
+               'M', 'MATURED',
+               'C', 'CANCELLED',
+               'J', 'REJECTED/DECLINED',
+               'P', 'POSTPONED',
+               'V', 'ACCEPTED',
+               'PU', 'PAID UP',
+               'DC', 'DEATH CLAIM',
+               'DSC', 'DISABILITY CLAIM',
+               'FL', 'FINAL LAPSED',
+               'CPU', 'CLAIM PAID UP',
+               'PA', 'PENDING ACCEPTANCE')
+           POL_STATUS,
+       ENDR_TERM POL_TERM,
+       Lms_Process_Receipts.Policy_os_bal (POL_CODE)
+           OS_PREM
+  FROM LMS_POLICY_ENDORSEMENTS, LMS_POLICIES, LMS_PROPOSERS
+ WHERE     POL_CURRENT_ENDR_CODE = ENDR_CODE
+       AND POL_PRP_CODE = PRP_CODE
+       AND POL_CODE = :V_POL_CODE
+ ]]>
+  </sqlStatement>
+   <sqlStatement name="Q_3">
+        <![CDATA[
+ SELECT OPR_RECEIPT_NO,
+         TO_CHAR (OPR_RECEIPT_DATE, 'dd-Mon-yyyy')
+             RECEIPTDATE,
+         TO_CHAR (NVL (OPR_DEDUCTION_DATE, OPR_RECEIPT_DATE), 'Mon/yyyy')
+             DEDUCTDATE,
+         TO_CHAR (OPR_RECEIPT_DATE, 'mm/yyyy')
+             DATES,
+         OPR_AMT,
+         NVL (DECODE (OPR_DRCR, 'C', 1, -1) * OPR_ALLOCATED_AMT, 0)
+             OPR_ALLOCATED_AMT,
+         NVL (OPR_LOAN_PYMT_AMT, 0)
+             OPR_LOAN_PYMT_AMT,
+         NVL((OPR_AMT - (NVL (OPR_LOAN_PYMT_AMT, 0) + OPR_ALLOCATED_AMT)), 0)
+             OPR_UNALLOC_AMT,
+         OPR_CHEQUE_NO,
+         (SELECT TO_CHAR (MAX(OPRI_PAID_TO_DATE), 'dd-Mon-yyyy')
+            FROM LMS_ORD_RECEIPT_INSTLMNTS
+           WHERE OPRI_OPR_CODE = OPR_CODE)
+             PAID_UPTO,
+           DECODE (OPR_DRCR, 'C', 1, -1)
+         * (  OPR_PENS_PYMT_AMT
+            - NVL ((SELECT SUM (PNDPO_ADMIN_FEE)
+                      FROM LMS_PENSION_DEPOSITS_ORD
+                     WHERE PNDPO_OPR_CODE = OPR_CODE),
+                   0))
+             OPR_PENS_PYMT_AMT,
+         DECODE (
+             OPR_SOURCE,
+             'PREM_BAL_CF', DECODE (OPR_DRCR, 'C', 'RECEIPT', 'RECEIPT REFUND'),
+             'PREM_BAL_REC', DECODE (OPR_DRCR,
+                                     'C', 'RECEIPT',
+                                     'RECEIPT REFUND'),
+             OPR_SOURCE)
+             OPR_SOURCE,
+         NVL (CUR_DESC, 'KENYAN SHILLING'),
+         NVL (CUR_SYMBOL, 'KES')
+             CUR_SYMBOL
+    FROM (SELECT *
+            FROM LMS_ORD_PREM_RECEIPTS A
+           WHERE     OPR_POL_CODE = :V_POL_CODE
+		         AND opr_source <> 'RECPT CANCELLATION'
+                 AND OPR_ORIG_OPR_CODE NOT IN
+                         (SELECT B.OPR_CODE
+                            FROM LMS_ORD_PREM_RECEIPTS B
+                           WHERE     B.OPR_POL_CODE = :V_POL_CODE
+                                 AND A.OPR_CODE = B.OPR_ORIG_OPR_CODE
+                                 AND A.OPR_AMT = B.OPR_AMT) -- AND b.opr_source ='RECPT CANCELLATION')
+                                                                      ),
+         FMS_RECEIPTS,
+         TQC_CURRENCIES
+   WHERE     OPR_FMS_RECEIPT_PK = RCT_NO(+)
+         AND RCT_CUR_CODE = CUR_CODE(+)
+         --AND OPR_ALLOC_TO <> 'LN'
+ORDER BY OPR_RECEIPT_DATE, DEDUCTDATE, OPR_DATE
+
+ ]]>
+  </sqlStatement>
+</dataQuery>
+<dataStructure>
+<group name="G_ORGANIZATION" dataType="varchar2" source="Q_1"> 
+    <element name="ORG_PHY_ADDRS" dataType="varchar2" value="ORG_PHY_ADDRS"/>
+    <element name="ORG_NAME" dataType="varchar2" value="ORG_NAME"/>   
+    <element name="POSTALADDRESS" dataType="varchar2" value="POSTALADDRESS"/>
+    <element name="TELEPHONE" dataType="varchar2" value="TELEPHONE"/>
+    <element name="FAX" dataType="varchar2" value="FAX"/>
+    <element name="EMAIL" dataType="varchar2" value="EMAIL"/>
+    <element name="LOGO" dataType="longRaw" value="LOGO"/>   
+    <element name="COUNTRY" dataType="varchar2" value="COUNTRY"/> 
+    <element name="FOOTER" dataType="varchar2" value="FOOTER"/>    
+</group>
+<group name="G_POL" dataType="varchar2" source="Q_2">
+	<element name="POLNO" dataType="varchar2" value="POLNO"/>
+	<element name="CLIENT" dataType="varchar2" value="CLIENT"/>
+	<element name="MARKETER" dataType="varchar2" value="MARKETER"/>
+	<element name="PRP_EMAIL" dataType="varchar2" value="PRP_EMAIL"/>
+	<element name="PRP_TEL" dataType="varchar2" value="PRP_TEL"/>
+	<element name="POL_TERM" dataType="varchar2" value="POL_TERM"/>
+	<element name="PROD_DESC" dataType="varchar2" value="PROD_DESC"/>
+	<element name="POL_STATUS" dataType="varchar2" value="POL_STATUS"/>
+	<element name="POL_PAID_INSTLMT_NO" dataType="varchar2" value="POL_PAID_INSTLMT_NO"/>
+	<element name="TERM" dataType="varchar2" value="TERM"/>
+	<element name="ENDR_TOT_PREMIUM" dataType="varchar2" value="ENDR_TOT_PREMIUM"/>
+	<element name="ENDR_TOT_SA" dataType="varchar2" value="ENDR_TOT_SA"/>
+	<element name="OS_PREM" dataType="varchar2" value="OS_PREM"/>
+	<element name="COVERFROM" dataType="varchar2" value="COVERFROM"/>
+	<element name="COVERTO" dataType="varchar2" value="COVERTO"/>
+	<element name="POL_PAID_TO_DATE" dataType="varchar2" value="POL_PAID_TO_DATE"/>
+	<element name="ENDR_ANB" dataType="varchar2" value="ENDR_ANB"/>
+	<element name="TODAY" dataType="varchar2" value="TODAY"/>
+	<element name="POL_TERM" dataType="varchar2" value="POL_TERM"/>
+	<element name="POL_PSA_BONUS" dataType="varchar2" value="POL_PSA_BONUS"/>
+	<element name="FREQUENCY_OF_PAYMENT" dataType="varchar2" value="FREQUENCY_OF_PAYMENT"/>
+</group>
+<group name="G_PREM" dataType="varchar2" source="Q_3">
+	<element name="RECEIPTDATE" dataType="varchar2" value="RECEIPTDATE"/>
+	<element name="DEDUCTDATE" dataType="varchar2" value="DEDUCTDATE"/>
+	<element name="OPR_AMT" dataType="varchar2" value="OPR_AMT"/>
+	<element name="PAID_UPTO" dataType="varchar2" value="PAID_UPTO"/>
+	<element name="OPR_ALLOCATED_AMT" dataType="varchar2" value="OPR_ALLOCATED_AMT"/>
+	<element name="OPR_LOAN_PYMT_AMT" dataType="varchar2" value="OPR_LOAN_PYMT_AMT"/>
+	<element name="OPR_UNALLOC_AMT" dataType="varchar2" value="OPR_UNALLOC_AMT"/>
+	<element name="OPR_RECEIPT_NO" dataType="varchar2" value="OPR_RECEIPT_NO"/>
+	<element name="OPR_CHEQUE_NO" dataType="varchar2" value="OPR_CHEQUE_NO"/>
+	<element name="OPR_SOURCE" dataType="varchar2" value="OPR_SOURCE"/>
+	<element name="CUR_SYMBOL" dataType="varchar2" value="CUR_SYMBOL"/>
+</group>
+</dataStructure>
+</dataTemplate>

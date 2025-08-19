@@ -1,0 +1,109 @@
+spring:
+  application:
+    name: general-systems-apis
+  mail:
+    host: smtp.office365.com
+    port: 25
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    tls: true
+    properties.mail.smtp:
+      #auth: true
+      starttls.enable: true
+
+
+  messages:
+    basename: messages,config.i18n.messages
+    always-use-message-format: false
+    encoding: UTF-8
+    fallback-to-system-locale: false
+    use-code-as-default-message: true
+
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration
+      - org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration
+
+springdoc:
+  api-docs:
+    path: /swagger-ui.html
+
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+    packagesToScan: ke.co.apollo
+    operationsSorter: method
+    tagsSorter: alpha
+
+# swagger application info
+application-description: General Systems Backend Apis
+application-version: v1.0
+organization-title: AGILECRAFT TECHNOLOGIES
+organization-name: AgileCraft Technology Solutions
+organization-email: info@agilecraft.co.ke
+organization-website: http://www.agilecraft.co.ke
+
+server:
+  #port: 8080
+  port: 8443
+  ssl:
+    key-store: ${SSL_KEYSTORE}
+    key-store-password: ${SSL_KEYSTORE_PASS}
+    key-store-type: PKCS12
+    key-alias: 1 #mycert
+
+
+  servlet:
+    context-path: /general-systems-apis
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-exception: false
+
+datasource:
+  primary-liquibase:
+    liquibase:
+      change-log: classpath:db/db.changelog-master-mariadb.yml
+  secondary-liquibase:
+    liquibase:
+      change-log: classpath:db/db.changelog-master-oracle.yml
+
+apidb:
+  datasource:
+    jdbc-url: ${MARIA_GIS_DB_URL}
+    username:  ${MARIA_GIS_DB_USER}
+    password: ${MARIA_GIS_DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+thirdpartydb:
+  datasource:
+    jdbc-url: ${TP_GIS_DB_URL}
+    username: ${TP_GIS_DB_USER}
+    password: ${TP_GIS_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+uploads:
+      storage:
+        location: ${UPLOADS_LOCATION}
+
+reports-service: https://services.geminialife.co.ke:9443/lifereports
+
+mobile:
+  consumerKey: ${MOBILE_CONSUMER_KEY}
+  consumerSecret: ${MOBILE_CONSUMER_SECRET}
+  shortCode: ${MOBILE_SHORT_CODE}
+  passkey: ${MOBILE_PASS_KEY}
+  callbackUrl: ${MOBILE_CALLBACK_URL}
+  pushUrl: ${MOBILE_STK_URL}
+  accessTokenUrl: ${MOBILE_ACCESS_TOKEN_URL}
+
+notification:
+  emailUrl: ${EMAIL_SERVICE_URL}
+  emailSender: ${EMAIL_SERVICE_SENDER}
+  smsUrl: ${SMS_SERVICE_URL}
+  smsApiKey: ${SMS_SERVICE_API_KEY}
+  smsPartnerID: ${SMS_SERVICE_PARTNERID}
+  smsShortcode: ${SMS_SERVICE_SHORT_CODE}
+
+#notification-service: http://notification-apis-service.service.apainsurance.ke:8080/notification/email/sendEmailAttachmentBytes

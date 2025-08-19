@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataTemplate dataSourceRef="aiicolms" name="med_undl" defaultPackage="reports_parameters">
+<properties>
+<property name="xml_tag_case" value="upper"/>
+</properties>
+<parameters>
+<parameter name="V_ENDR_CODE" dataType="integer"/>
+</parameters>
+<lexicals>
+</lexicals>
+<dataQuery>
+
+<sqlStatement name="Q_1">
+<![CDATA[
+
+SELECT org_name,
+       ORG_PHY_ADDRS,
+       ORG_ADDRS || ' , ' || ORG_ZIP || ' - ' || TWN_NAME || ' , ' ||
+       COU_NAME POSTALADDRESS,
+       'Telephone' || ':' || ORG_TEL1 ||
+       DECODE(ORG_TEL2, NULL, NULL, ' /' || ORG_TEL2) TELEPHONE,
+       'Fax' || ':' || ORG_FAX FAX,
+        lower(ORG_EMAIL_ADDRS) EMAIL,
+       ORG_RPT_LOGO logo,
+       lower(ORG_WEB_ADDRS) WEB, CUR_SYMBOL CURRENCY
+  FROM TQC_ORGANIZATIONS, TQC_COUNTRIES, TQC_TOWNS, TQC_SYSTEMS,
+       TQC_CURRENCIES
+ WHERE ORG_TWN_CODE = TWN_CODE
+   AND ORG_COU_CODE = COU_CODE
+   AND TWN_COU_CODE=COU_CODE
+   AND SYS_ORG_CODE = ORG_CODE
+   AND CUR_CODE = ORG_CUR_CODE
+   AND SYS_SHT_DESC = 'LMS'
+   
+]]>
+</sqlStatement>
+
+<sqlStatement name="Q_2">
+<![CDATA[
+
+SELECT PRP_SURNAME||' '||PRP_OTHER_NAMES CLIENT, PRP_PHYSICAL_ADDR, PROD_DESC,
+ENDR_UW_YEAR, ENDR_OVERRIDE_FCL_AMT, NVL(SPR_CONTACT, SPR_NAME)SPR_CONTACT, SPR_PHYSICAL_ADDRESS, SPR_POSTAL_ADDRESS,
+SPR_NAME, SPR_PHONE, PRV_TOWN.TWN_NAME SPR_TOWN, AGN_NAME, AGN_PHYSICAL_ADDRESS, AGN_POSTAL_ADDRESS,
+AGENCY_TOWN.TWN_NAME AGN_TOWN, :CURRENCY CUR_SYMBOL, TO_CHAR(SYSDATE, 'ddth MonthYYYY')TODAY,
+:org_name ORGANIZATION 
+FROM LMS_POLICY_ENDORSEMENTS, LMS_POLICIES, LMS_PROPOSERS,
+LMS_PRODUCTS, TQC_SERVICE_PROVIDERS, TQC_TOWNS PRV_TOWN, LMS_AGENCIES, TQC_TOWNS AGENCY_TOWN 
+WHERE ENDR_CODE = :V_ENDR_CODE
+AND POL_PRP_CODE = PRP_CODE
+AND ENDR_POL_CODE = POL_CODE
+AND POL_PROD_CODE = PROD_CODE
+AND ENDR_TQ_SPR_CODE = SPR_CODE
+AND SPR_TWN_CODE = PRV_TOWN.TWN_CODE(+)
+AND ENDR_AGEN_CODE = AGN_CODE
+AND AGN_TWN_CODE = AGENCY_TOWN.TWN_CODE(+)
+
+]]>
+</sqlStatement>
+
+</dataQuery>
+<dataStructure>
+
+ <group name="G_ORGANIZATION" dataType="varchar2" source="Q_1">
+ 
+   <element name="ORG_PHY_ADDRS" dataType="varchar2" value="ORG_PHY_ADDRS"/>
+   <element name="postaladdress" dataType="varchar2" value="POSTALADDRESS"/>
+   <element name="Telephone" dataType="varchar2" value="TELEPHONE"/>
+   <element name="Fax" dataType="varchar2" value="FAX"/>
+   <element name="email" dataType="varchar2" value="EMAIL"/>
+   <element name="WEB" dataType="varchar2" value="WEB"/>
+ 
+ </group>
+
+ <group name="G_POLICY_NO" dataType="varchar2" source="Q_2">
+
+    <element name="CLIENT" dataType="varchar2" value="CLIENT"/>
+    <element name="PRP_PHYSICAL_ADDR" dataType="varchar2" value="PRP_PHYSICAL_ADDR"/>
+    <element name="PROD_DESC" dataType="varchar2" value="PROD_DESC"/>
+    <element name="ENDR_UW_YEAR" dataType="number" value="ENDR_UW_YEAR"/>    
+    <element name="ENDR_FCL_AMT" dataType="number" value="ENDR_OVERRIDE_FCL_AMT"/>
+    <element name="SPR_CONTACT" dataType="varchar" value="SPR_CONTACT"/>
+    <element name="SPR_PHYSICAL_ADDRESS" dataType="varchar" value="SPR_PHYSICAL_ADDRESS"/>    
+    <element name="SPR_POSTAL_ADDRESS" dataType="varchar2" value="SPR_POSTAL_ADDRESS"/>
+    <element name="SPR_NAME" dataType="varchar2" value="SPR_NAME"/>
+    <element name="SPR_PHONE" dataType="varchar2" value="SPR_PHONE"/>
+    <element name="SPR_TOWN" dataType="varchar2" value="SPR_TOWN"/>
+    <element name="AGN_NAME" dataType="varchar2" value="AGN_NAME"/>
+    <element name="AGN_PHYSICAL_ADDRESS" dataType="varchar2" value="AGN_PHYSICAL_ADDRESS"/>
+    <element name="AGN_POSTAL_ADDRESS" dataType="varchar2" value="AGN_POSTAL_ADDRESS"/>
+    <element name="AGN_TOWN" dataType="varchar2" value="AGN_TOWN"/>
+    <element name="CUR_SYMBOL" dataType="varchar2" value="CUR_SYMBOL"/>
+    <element name="Organization" dataType="varchar2" value="ORGANIZATION"/>
+    <element name="TODAY" dataType="date" value="TODAY"/>
+    
+    
+ </group>
+ 
+</dataStructure>
+</dataTemplate>
