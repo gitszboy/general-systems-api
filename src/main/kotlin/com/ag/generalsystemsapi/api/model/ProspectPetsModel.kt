@@ -2,12 +2,13 @@ package com.ag.generalsystemsapi.api.model
 
 import lombok.Getter
 import lombok.Setter
+import java.util.*
 import javax.persistence.*
 
 @Setter
 @Getter
 @Entity
-@Table(name = "client_pets")
+@Table(name = "proposer_pets")
 class ProspectPetsModel  (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +18,9 @@ class ProspectPetsModel  (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prpt_prosp_code", nullable = true)
     var prospectPetProspect: ProspectsModel? = null,
+
+    @Column(name = "prpt_name", nullable = true)
+    var prospectPetName: String? = null,
 
     @Column(name = "prpt_pet_type", nullable = true)
     var prospectPetType: String? = null,
@@ -28,7 +32,7 @@ class ProspectPetsModel  (
     var prospectPetGender: String? = null,
 
     @Column(name = "prpt_dob", nullable = true)
-    var prospectPetDateOfBirth: String? = null,
+    var prospectPetDateOfBirth: Date? = null,
 
     @Column(name = "prpt_weight", nullable = true)
     var prospectPetWeight: String? = null,
@@ -66,4 +70,4 @@ class ProspectPetsModel  (
     @Column(name = "prpt_comments", nullable = true)
     var prospectPetComments: String? = null,
 
-)
+    )

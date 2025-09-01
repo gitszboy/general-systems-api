@@ -2099,7 +2099,7 @@ databaseChangeLog:
         - onError: HALT
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='lmsagentdb' AND table_name='clinical_visit' AND column_name = 'cv_date'
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='clinical_visit' AND column_name = 'cv_date'
       changes:
         - addColumn:
             tableName: clinical_visit
@@ -2107,5 +2107,1070 @@ databaseChangeLog:
               - column:
                   name: cv_date
                   type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-cover-types-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='cover_types'
+      changes:
+        - createTable:
+            tableName: cover_types
+            columns:
+              - column:
+                  name: covt_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: covt_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: covt_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: covt_details
+                  type: varchar(2000)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-sub-cover-types-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='subclass_cover_types'
+      changes:
+        - createTable:
+            tableName: subclass_cover_types
+            columns:
+              - column:
+                  name: sclcovt_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: sclcovt_covt_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "cover_types"
+                      baseColumnNames: "org_code"
+                      constraintName: "fk_sclcovt_covt_code"
+                      referencedTableName: "subclass_cover_types"
+                      referencedColumnNames: "sclcovt_covt_code"
+              - column:
+                  name: sclcovt_covt_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sclcovt_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sclcovt_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_sclcovt_scl_code"
+                      referencedTableName: "subclass_cover_types"
+                      referencedColumnNames: "sclcovt_scl_code"
+              - column:
+                  name: sclcovt_default
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-quotations-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='quotations'
+      changes:
+        - createTable:
+            tableName: quotations
+            columns:
+              - column:
+                  name: quo_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: quo_effective_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_pro_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "products"
+                      baseColumnNames: "pro_code"
+                      constraintName: "fk_quo_pro_code"
+                      referencedTableName: "quotations"
+                      referencedColumnNames: "quo_pro_code"
+              - column:
+                  name: quo_prosp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "prospects"
+                      baseColumnNames: "prosp_code"
+                      constraintName: "fk_quo_prosp_code"
+                      referencedTableName: "quotations"
+                      referencedColumnNames: "quo_prosp_code"
+              - column:
+                  name: quo_org_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "organizations"
+                      baseColumnNames: "org_code"
+                      constraintName: "fk_quo_org_code"
+                      referencedTableName: "quotations"
+                      referencedColumnNames: "quo_org_code"
+              - column:
+                  name: quo_freq_of_payment
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_term
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_tot_sa
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_tot_premium
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_mode_of_payment
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_save_point
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_cover_from_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quo_cover_to_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prospects-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='prospects'
+      changes:
+        - createTable:
+            tableName: prospects
+            columns:
+              - column:
+                  name: prosp_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: prosp_name
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosp_dob
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosp_tel
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosp_email
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosp_id_number
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosp_phy_addr
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosp_occupation
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prospect-pets-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='proposer_pets'
+      changes:
+        - createTable:
+            tableName: proposer_pets
+            columns:
+              - column:
+                  name: prpt_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: prpt_prosp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "prospects"
+                      baseColumnNames: "prosp_code"
+                      constraintName: "fk_quo_pro_code"
+                      referencedTableName: "proposer_pets"
+                      referencedColumnNames: "prpt_prosp_code"
+              - column:
+                  name: prpt_name
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_pet_type
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_breed
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_gender
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_dob
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_weight
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_microchip_avail
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_microchip_number
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_sterilized
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_vaccinated
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_medical_conditions
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_medical_surgeries
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_medical_medications
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_medical_seizures
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_injure_others
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_breeding
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpt_comments
+                  type: TEXT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-quotation-risks-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='quotation_risks'
+      changes:
+        - createTable:
+            tableName: quotation_risks
+            columns:
+              - column:
+                  name: qr_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: qr_quo_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "quotations"
+                      baseColumnNames: "quo_code"
+                      constraintName: "fk_qr_quo_code"
+                      referencedTableName: "quotation_risks"
+                      referencedColumnNames: "qr_quo_code"
+              - column:
+                  name: qr_prosp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "prospects"
+                      baseColumnNames: "prosp_code"
+                      constraintName: "fk_qr_prosp_code"
+                      referencedTableName: "quotation_risks"
+                      referencedColumnNames: "qr_prosp_code"
+              - column:
+                  name: qr_prpt_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "proposer_pets"
+                      baseColumnNames: "prpt_code"
+                      constraintName: "fk_qr_prpt_code"
+                      referencedTableName: "quotation_risks"
+                      referencedColumnNames: "qr_prpt_code"
+              - column:
+                  name: qr_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_qr_scl_code"
+                      referencedTableName: "quotation_risks"
+                      referencedColumnNames: "qr_scl_code"
+              - column:
+                  name: qr_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "binders"
+                      baseColumnNames: "bind_code"
+                      constraintName: "fk_qr_bind_code"
+                      referencedTableName: "quotation_risks"
+                      referencedColumnNames: "qr_bind_code"
+              - column:
+                  name: qr_covt_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "cover_types"
+                      baseColumnNames: "covt_code"
+                      constraintName: "fk_qr_covt_code"
+                      referencedTableName: "quotation_risks"
+                      referencedColumnNames: "qr_covt_code"
+              - column:
+                  name: qr_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: qr_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: qr_property_id
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: qr_item_desc
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: qr_value
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: qr_premium
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: qr_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: add-default-duration-column
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='products' AND column_name = 'pro_default_duration'
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: pro_default_duration
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-default-subclass-column
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='product_sub_classes' AND column_name = 'clp_default'
+      changes:
+        - addColumn:
+            tableName: product_sub_classes
+            columns:
+              - column:
+                  name: clp_default
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-binder-limits-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='binder_limits'
+      changes:
+        - createTable:
+            tableName: binder_limits
+            columns:
+              - column:
+                  name: bindl_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: bindl_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "binders"
+                      baseColumnNames: "bind_code"
+                      constraintName: "fk_bindl_bind_code"
+                      referencedTableName: "binder_limits"
+                      referencedColumnNames: "bindl_bind_code"
+              - column:
+                  name: bind_limit_amt
+                  type: double
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-clinical-management-column
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='clinical_visit' AND column_name = 'cv_management'
+      changes:
+        - addColumn:
+            tableName: clinical_visit
+            columns:
+              - column:
+                  name: cv_management
+                  type: TEXT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-risk-bal-column
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='policy_risks' AND column_name = 'ipu_balance'
+      changes:
+        - addColumn:
+            tableName: policy_risks
+            columns:
+              - column:
+                  name: ipu_balance
+                  type: double
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-pet-risk-sch-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='pets_sch'
+      changes:
+        - createTable:
+            tableName: pets_sch
+            columns:
+              - column:
+                  name: ptvs_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: ptvs_ipu_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "policy_risks"
+                      baseColumnNames: "ipu_code"
+                      constraintName: "fk_ptvs_ipu_code"
+                      referencedTableName: "pets_sch"
+                      referencedColumnNames: "ptvs_ipu_code"
+              - column:
+                  name: ptvs_animal
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_breed
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_gender
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_date_of_birth
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_weight
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_microchipped
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_microchip_no
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_vaccinated
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_med_conditions
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_surgeries
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_qr_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_qsr_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_medications
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_illness_sign
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_injure_others
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_commercial
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_comments
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_clinic_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_clinic_tel
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ptvs_clinic_town
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-bind-group-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='binder_groups'
+      changes:
+        - createTable:
+            tableName: binder_groups
+            columns:
+              - column:
+                  name: bindg_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: bindg_wef_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_wet_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_bindg_scl_code"
+                      referencedTableName: "binder_groups"
+                      referencedColumnNames: "bindg_scl_code"
+              - column:
+                  name: bindg_remarks
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_name
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_sht_desc
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_type
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_default
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bindg_web_default
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-binder-group-limits-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='binder_group_limits'
+      changes:
+        - createTable:
+            tableName: binder_group_limits
+            columns:
+              - column:
+                  name: bindlg_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: bindlg_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "binder_groups"
+                      baseColumnNames: "bindg_code"
+                      constraintName: "fk_bindlg_bindg_code"
+                      referencedTableName: "binder_group_limits"
+                      referencedColumnNames: "bindlg_bindg_code"
+              - column:
+                  name: bindlg_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "binders"
+                      baseColumnNames: "bind_code"
+                      constraintName: "fk_bindlg_bind_code"
+                      referencedTableName: "binder_group_limits"
+                      referencedColumnNames: "bindlg_bind_code"
+              - column:
+                  name: bindlg_limit_amt
+                  type: double
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-class-perils-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='subcl_sction_perils'
+      changes:
+        - createTable:
+            tableName: subcl_sction_perils
+            columns:
+              - column:
+                  name: sspr_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: sspr_per_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "perils"
+                      baseColumnNames: "per_code"
+                      constraintName: "fk_sspr_per_code"
+                      referencedTableName: "subcl_sction_perils"
+                      referencedColumnNames: "sspr_per_code"
+              - column:
+                  name: sspr_peril_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sspr_si_or_limit
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sspr_peril_limit
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sspr_cla_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "classes"
+                      baseColumnNames: "cla_code"
+                      constraintName: "fk_sspr_cla_code"
+                      referencedTableName: "subcl_sction_perils"
+                      referencedColumnNames: "sspr_cla_code"
+              - column:
+                  name: sspr_expire_on_claim
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-subclass-perils-map-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='subcl_sction_perils_map'
+      changes:
+        - createTable:
+            tableName: subcl_sction_perils_map
+            columns:
+              - column:
+                  name: ssprm_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: ssprm_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_ssprm_scl_code"
+                      referencedTableName: "subcl_sction_perils_map"
+                      referencedColumnNames: "ssprm_scl_code"
+              - column:
+                  name: ssprm_sect_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sections"
+                      baseColumnNames: "sect_code"
+                      constraintName: "fk_ssprm_sect_code"
+                      referencedTableName: "subcl_sction_perils_map"
+                      referencedColumnNames: "ssprm_sect_code"
+              - column:
+                  name: ssprm_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "binders"
+                      baseColumnNames: "bind_code"
+                      constraintName: "fk_ssprm_bind_code"
+                      referencedTableName: "subcl_sction_perils_map"
+                      referencedColumnNames: "ssprm_bind_code"
+              - column:
+                  name: ssprm_sspr_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "subcl_sction_perils"
+                      baseColumnNames: "sspr_code"
+                      constraintName: "fk_ssprm_sspr_code"
+                      referencedTableName: "subcl_sction_perils_map"
+                      referencedColumnNames: "ssprm_sspr_code"
+  - changeSet:
+      id: add-clinic-visit-serv-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='clinical_visit_services'
+      changes:
+        - createTable:
+            tableName: clinical_visit_services
+            columns:
+              - column:
+                  name: cvs_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: cvs_cv_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "clinical_visit"
+                      baseColumnNames: "cv_code"
+                      constraintName: "fk_cvs_cv_code"
+                      referencedTableName: "clinical_visit_services"
+                      referencedColumnNames: "cvs_cv_code"
+              - column:
+                  name: cvs_sspr_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "subcl_sction_perils"
+                      baseColumnNames: "sspr_code"
+                      constraintName: "fk_cvs_sspr_code"
+                      referencedTableName: "clinical_visit_services"
+                      referencedColumnNames: "cvs_sspr_code"
+              - column:
+                  name: cvs_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvs_limit_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvs_claim_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvs_no_of_claims
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvs_insured_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvs_excess_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvs_status
+                  type: varchar(100)
                   constraints:
                     nullable: true

@@ -1,19 +1,23 @@
 package com.ag.generalsystemsapi.api.model.view
 
+import com.ag.generalsystemsapi.api.model.OrganizationModel
+import com.ag.generalsystemsapi.api.model.ProductsModel
+import com.ag.generalsystemsapi.api.model.ProspectsModel
 import java.util.*
 
 class QuotationSummary (
     var quoteCode: Long?,
     var quoteEffectiveDate: Date?,
-    var agentName: String?,
-    var productDesc: String?,
-    var clientName: String?,
-    var clientEmail: String?,
-    var clientDateOfBirth: Date?,
-    var quoteTerm: Long?,
+    var quoteProduct: ProductsModel?,
+    var quoteProspect: ProspectsModel?,
+    var quoteOrganization: OrganizationModel?,
     var quoteFreqOfPayment: String?,
-    var quoteSumAssured: Double?,
+    var quoteTerm: Long? = null,
+    var quoteSumAssured: Double? = null,
     var quotePremium: Double?,
-    var quoteTqProposalNo: String?,
-    var clientCode: Long?
+    var quoteModeOfPayment: String?,
+    var quoteCoverFromDate: Date?,
+    var quoteCoverToDate: Date?,
+    var quoteStatus: String?,
+    var quoteRisks: List<QuotationRisksSummary>
 )

@@ -31,4 +31,7 @@ class ProductSubClassesModel (
     @Column(name = "clp_mandatory", nullable = true)
     var prodSubClassMandatory: String? = null,
 
+    @Column(name = "clp_default", nullable = true)
+    var prodSubClassDefault: String? = null,
+
     )

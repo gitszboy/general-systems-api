@@ -47,4 +47,7 @@ class PolicyRisksModel(
     @JoinColumn(name = "ipu_bind_code", nullable = true)
     var policyRiskBindCode: BindersModel? = null,
 
+    @Column(name = "ipu_balance", nullable = true)
+    var policyRiskBalance: Double? = null,
+
 )

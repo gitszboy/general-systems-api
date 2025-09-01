@@ -2,6 +2,7 @@ package com.ag.generalsystemsapi.api.controller
 
 import com.ag.generalsystemsapi.api.model.PolicyRisksModel
 import com.ag.generalsystemsapi.api.model.responses.ClinicalVisitResponse
+import com.ag.generalsystemsapi.api.model.responses.PolicyRiskResponse
 import com.ag.generalsystemsapi.api.service.IPoliciesService
 import com.ag.generalsystemsapi.api.util.Result
 import io.swagger.v3.oas.annotations.Operation
@@ -28,8 +29,19 @@ class PoliciesController {
         return ResponseEntity("Success", HttpStatus.OK)
     }
 
+    @Operation(summary = "Populate Pet Policy", description = "Populate Pet Policy")
+    @RequestMapping(value = ["/populatePetPolicy"], method = [RequestMethod.POST])
+    fun populatePetPolicy(@RequestParam(name= "polBatchNo", required = true) polBatchNo: Long) : ResponseEntity<*> {
+        iPoliciesService.populatePetPolicy(polBatchNo)
+        return ResponseEntity("Success", HttpStatus.OK)
+    }
+
     @Operation(summary = "Find Policy Risks", description = "Fetches Policy Risks")
     @GetMapping("/findPolicyRisks", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun findPolicyRisks(): Result<Iterable<PolicyRisksModel>> = iPoliciesService.findPolicyRisks()
+
+    @Operation(summary = "Find Policy Risk Details", description = "Fetches Policy Risk Details")
+    @GetMapping("/findPolicyRiskDetails", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findPolicyRiskDetails(@RequestParam(name= "riskID", required = true) riskID: String): Result<PolicyRiskResponse> = iPoliciesService.findPolicyRiskDetails(riskID)
 
 }

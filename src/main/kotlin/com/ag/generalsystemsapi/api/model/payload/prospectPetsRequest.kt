@@ -1,12 +1,14 @@
 package com.ag.generalsystemsapi.api.model.payload
 
-class prospectPetsRequest  (
+import java.util.*
+
+class ProspectPetsRequest  (
     var prospectPetCode: Long? = null,
-    var prospectPetProspect: Long,
+    var prospectPetName: String? = null,
     var prospectPetType: String? = null,
     var prospectPetBreed: String?,
     var prospectPetGender: String? = null,
-    var prospectPetDateOfBirth: String? = null,
+    var prospectPetDateOfBirth: Date? = null,
     var prospectPetWeight: String? = null,
     var prospectPetMicroAvail: String? = null,
     var prospectPetMicroNumber: String? = null,
@@ -19,4 +21,6 @@ class prospectPetsRequest  (
     var prospectPetInjureOthers: String? = null,
     var prospectPetBreeding: String? = null,
     var prospectPetComments: String? = null,
+    var prospectBinderCode: Long,
+    var prospectPetAnnualLimit: Double? = null,
 )

@@ -1,11 +1,15 @@
 package com.ag.generalsystemsapi.api.service.impl
 
 import com.ag.generalsystemsapi.api.model.*
+import com.ag.generalsystemsapi.api.model.view.BindersView
 import com.ag.generalsystemsapi.api.repository.*
 import com.ag.generalsystemsapi.api.service.IProductsService
+import com.ag.generalsystemsapi.api.util.Result
+import com.ag.generalsystemsapi.api.util.ResultFactory
 import com.ag.generalsystemsapi.thirdparty.repository.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class ProductsServiceImpl : IProductsService{
@@ -52,6 +56,39 @@ class ProductsServiceImpl : IProductsService{
     @Autowired
     lateinit var bindersRepo: BindersRepository
 
+    @Autowired
+    lateinit var tpCoverTypesRepo: TpCoverTypesRepository
+
+    @Autowired
+    lateinit var coverTypesRepo: CoverTypesRepository
+
+    @Autowired
+    lateinit var tpSubClassCoverTypesRepo: TpSubClassCoverTypesRepository
+
+    @Autowired
+    lateinit var subClassCoverTypesRepo: SubClassCoverTypesRepository
+
+    @Autowired
+    lateinit var binderLimitsRepo: BinderLimitsRepository
+
+    @Autowired
+    lateinit var binderGroupLimitsRepo: BinderGroupLimitsRepository
+
+    @Autowired
+    lateinit var binderGroupsRepo: BinderGroupsRepository
+
+    @Autowired
+    lateinit var tpClassPerilsRepo: TpClassPerilsRepository
+
+    @Autowired
+    lateinit var classPerilsRepo: ClassPerilsRepository
+
+    @Autowired
+    lateinit var subClassPerilsMapRepo: SubClassPerilsMapRepository
+
+    @Autowired
+    lateinit var tpSubClassPerilsMapRepo: TpSubClassPerilsMapRepository
+
     override fun populateProductDetails(){
 
         //fetch products.
@@ -92,6 +129,17 @@ class ProductsServiceImpl : IProductsService{
             perilsRepo.save(peril)
         }
 
+        //Cover Types.
+        for(c in tpCoverTypesRepo.findAll()){
+            val coverType = CoverTypesModel(
+                coverCode = c.coverCode,
+                coverShtDesc = c.coverShtDesc,
+                coverDesc = c.coverDesc,
+                coverDetails = c.coverDetails
+            )
+            coverTypesRepo.save(coverType)
+        }
+
         //fetch classes.
         for(c in tpClassesRepo.findAll()){
             var classes = ClassesModel(
@@ -102,6 +150,20 @@ class ProductsServiceImpl : IProductsService{
                 classWet = c.classWet
             )
             classes = classesRepo.save(classes)
+
+            //fetch class perils.
+            for(cp in tpClassPerilsRepo.findByClPerilClassCode(classes.classCode)){
+                var classPerils = ClassPerilsModel(
+                    clPerilCode = cp.clPerilCode,
+                    clPerilPerilCode = perilsRepo.findById(cp.clPerilPerilCode!!).orElseThrow {Exception("peril not found") } ,
+                    clPerilType = cp.clPerilType,
+                    clPerilSIorLimit = cp.clPerilSIorLimit,
+                    clPerilLimit = cp.clPerilLimit,
+                    clPerilClassCode = classes,
+                    clPerilExpireOnClaim = cp.clPerilExpireOnClaim
+                )
+                classPerils = classPerilsRepo.save(classPerils)
+            }
 
             //fetch subclasses.
             for(s in tpSubClassesRepo.findBySubClassClassCode(c.classCode)){
@@ -145,8 +207,98 @@ class ProductsServiceImpl : IProductsService{
                         bindWet = b.bindWet
                     )
                     bindersRepo.save(binder)
+
+                    //fetch subclass binder perils.
+                    for(sp in tpSubClassPerilsMapRepo.findBySclPerilMapBinder(b.bindCode)){
+                        val perilMap = SubClassPerilsMapModel(
+                            sclPerilMapCode = sp.sclPerilMapCode,
+                            sclPerilMapSubClass = subClasses,
+                            sclPerilMapSection = sectionsRepo.findById(sp.sclPerilMapSection!!).orElse(null),
+                            sclPerilMapBinder = binder,
+                            sclPerilMapClassPeril = classPerilsRepo.findById(sp.sclPerilMapClassPeril!!).orElse(null)
+                        )
+                        subClassPerilsMapRepo.save(perilMap)
+                    }
                 }
+
+                //fetch subclass cover types.
+                for(sc in tpSubClassCoverTypesRepo.findByScCoverSubClass(s.subClassCode)){
+                    val subCover = SubClassCoverTypesModel(
+                        scCoverCode = sc.scCoverCode,
+                        scCoverCoverTypeCode = coverTypesRepo.findByCoverCode(sc.scCoverCoverTypeCode),
+                        scCoverCoverTypeShtDesc = sc.scCoverCoverTypeShtDesc,
+                        scCoverCoverTypeDesc = sc.scCoverCoverTypeDesc,
+                        scCoverSubClass = subClasses,
+                        scCoverDefault = sc.scCoverDefault
+                    )
+                    subClassCoverTypesRepo.save(subCover)
+                }
+
             }
         }
+    }
+
+    /*override fun findProductBinders(prodCode: Long) : Result<Iterable<BindersView>>{
+        val product = productsRepo.findById(prodCode)
+            .orElseThrow {Exception("Product not found") }
+
+        val subClass = productSubClassesRepo.findByProdSubClassProdCodeAndProdSubClassDefault(product, "Y")
+            .orElseThrow {Exception("Subclass not found") }
+
+        val risks = bindersRepo.findByBindSubClassCodeAndBindWebDefault(subClass.prodSubClassSubclassCode, "Y")
+            .map { r ->
+                val binderLimits = binderLimitsRepo.findByBindLimitBinders(r)
+                    .map { it.bindLimitAmount }
+
+                BindersView(
+                     bindCode = r.bindCode,
+                     bindAgentCode = r.bindAgentCode,
+                     bindAgentShtDesc = r.bindAgentShtDesc,
+                     bindWef = r.bindWef,
+                     bindWet = r.bindWet,
+                     bindSubClassCode = r.bindSubClassCode?.subClassCode,
+                     bindRemarks = r.bindRemarks,
+                     bindName = r.bindName,
+                     bindShtDesc = r.bindShtDesc,
+                     bindType = r.bindType,
+                     bindDefault = r.bindDefault,
+                     bindWebDefault = r.bindWebDefault,
+                     binderLimits = binderLimits
+                )
+            }
+        return ResultFactory.getSuccessResult(risks)
+    }*/
+
+    override fun findProductBinders(prodCode: Long) : Result<Iterable<BindersView>>{
+        val product = productsRepo.findById(prodCode)
+            .orElseThrow {Exception("Product not found") }
+
+        val subClass = productSubClassesRepo.findByProdSubClassProdCodeAndProdSubClassDefault(product, "Y")
+            .orElseThrow {Exception("Subclass not found") }
+
+        val risks = binderGroupsRepo.findByBindGroupSubClassCodeAndBindGroupWebDefault(subClass.prodSubClassSubclassCode, "Y")
+            .map { r ->
+                val binderLimits = binderGroupLimitsRepo.findByBindGroupLimitGroup(r)
+                    .map { it.bindGroupLimitAmount }
+
+                BindersView(
+                    bindCode = r.bindGroupCode,
+                    bindWef = r.bindGroupWef,
+                    bindWet = r.bindGroupWet,
+                    bindSubClassCode = r.bindGroupSubClassCode?.subClassCode,
+                    bindRemarks = r.bindGroupRemarks,
+                    bindName = r.bindGroupName,
+                    bindShtDesc = r.bindGroupShtDesc,
+                    bindType = r.bindGroupType,
+                    bindDefault = r.bindGroupDefault,
+                    bindWebDefault = r.bindGroupWebDefault,
+                    binderLimits = binderLimits
+                )
+            }
+        return ResultFactory.getSuccessResult(risks)
+    }
+
+    override fun findPetProducts() : Result<ProductsModel?>{
+        return ResultFactory.getSuccessResult(productsRepo.findByProductCode(7907L))
     }
 }

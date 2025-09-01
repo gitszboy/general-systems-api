@@ -26,4 +26,7 @@ class ProductsModel (
     @Column(name = "pro_wet", nullable = true)
     var productWet: Date? = null,
 
+    @Column(name = "pro_default_duration", nullable = true)
+    var productDefaultDuration: Long? = null,
+
 )

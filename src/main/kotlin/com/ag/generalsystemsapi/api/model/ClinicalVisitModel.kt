@@ -64,4 +64,7 @@ class ClinicalVisitModel (
 
     @Column(name = "cv_status", nullable = true)
     var visitStatus: String? = null,
+
+    @Column(name = "cv_management", nullable = true)
+    var visitManagement: String? = null,
 )

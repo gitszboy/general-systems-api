@@ -11,7 +11,6 @@ import javax.persistence.*
 @Table(name = "sub_classes")
 class SubClassesModel (
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "scl_code", nullable = false)
     var subClassCode: Long,
 

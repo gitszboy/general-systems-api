@@ -23,6 +23,7 @@ class ClinicalVisitResponse (
     var visitCurrentService: String? = null,
     var visitComplaints: String? = null,
     var visitExaminations: String? = null,
+    var visitManagement: String? = null,
     var visitClinicalDiagnosis: String? = null,
     var visitFinalDiagnosis: String? = null,
     var visitStatus: String? = null
