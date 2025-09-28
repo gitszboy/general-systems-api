@@ -23,9 +23,9 @@ class FileUploadResourceHelper {
     @Value("\${uploads.storage.location}")
     lateinit var appUploadPath: String
 
-    fun uploadFile(file: MultipartFile, directory : String) : FileDetailsModel {
+    fun uploadFile(file: MultipartFile, folder: String, directory : String) : FileDetailsModel {
         //val UPLOAD_PATH = Paths.get(ClassPathResource("").file.absolutePath + File.separator + "uploads"  + File.separator + "agentInvoices" + File.separator + directory)
-        val UPLOAD_PATH =  Paths.get(appUploadPath + File.separator + "agentInvoices" + File.separator + directory)
+        val UPLOAD_PATH =  Paths.get(appUploadPath + File.separator + folder + File.separator + directory)
         if (!Files.exists(UPLOAD_PATH)) {
             Files.createDirectories(UPLOAD_PATH)
         }

@@ -33,4 +33,7 @@ class ClassPerilsModel   (
     @Column(name = "sspr_expire_on_claim", nullable = true)
     var clPerilExpireOnClaim: String? = null,
 
+    @Column(name = "sspr_person_limit", nullable = true)
+    var clPersonLimit: Double? = null,
+
 )

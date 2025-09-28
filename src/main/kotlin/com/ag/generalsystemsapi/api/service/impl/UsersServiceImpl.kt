@@ -12,6 +12,7 @@ import com.ag.generalsystemsapi.api.util.Result
 import com.ag.generalsystemsapi.api.util.ResultFactory
 import com.ag.generalsystemsapi.thirdparty.repository.TpClientsRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -70,6 +71,12 @@ class UsersServiceImpl: IUsersService {
 
     @Autowired
     lateinit var organizationAccountsRepo: OrganizationAccountsRepository
+
+    @Value("\${portal-name}")
+    lateinit var portalName: String
+
+    @Value("\${company-name}")
+    lateinit var companyName: String
 
     override fun RegisterSystemUser(userRequest: RegisterUserRequest) {
 
@@ -622,23 +629,13 @@ class UsersServiceImpl: IUsersService {
 
             agentsRepository.save(agent)
 
-            /*val params = JSONObject()
-            params.put("subject", "Geminia Life Agency Portal: Password Reset for Agent : ${agent.agentName}")
-            params.put("emailAddress", agent.agentEmail)
-            val emailBody: String? =
-                "<p>Dear ${agent.agentName} </p>. " +
-                        "<p>Kindly input the token number below to reset your password in the Geminia Life agency portal </p>. " +
-                        "<p><b>Token No.: ${it.agentPasswordResetCode}</p></b>"
-            params.put("text", emailBody)
-
-            notificationResourceHelper.sendEmailNoAttachment(params)*/
             val receipent = agent.agentEmail
-            val emailSubject = "Geminia Life Portal: Password Reset for Agent : ${agent.agentName}"
+            val emailSubject = "$portalName: Password Reset for Agent : ${agent.agentName}"
             val emailBody: String =
                 "<p>Dear ${agent.agentName} </p>. " +
-                        "<p>Kindly input the token number below to reset your password in the Geminia Life portal </p>. " +
+                        "<p>Kindly input the token number below to reset your password in the $portalName </p>. " +
                         "<p><b>Reset Code.: ${it.agentPasswordResetCode}</p></b>" +
-                        "<p>Geminia Life Assurance Limited</p>. "
+                        "<p>$companyName</p>. "
             notificationResourceHelper.sendSimpleEmail(receipent!!,emailSubject, emailBody, true)
 
             return ResultFactory.getSuccessResult("Password successfully reset")
@@ -700,20 +697,10 @@ class UsersServiceImpl: IUsersService {
 
             clientsRepo.save(client)
 
-            /*val params = JSONObject()
-            params.put("subject", "Geminia Life Agency Portal: Password Reset for Agent : ${agent.agentName}")
-            params.put("emailAddress", agent.agentEmail)
-            val emailBody: String? =
-                "<p>Dear ${agent.agentName} </p>. " +
-                        "<p>Kindly input the token number below to reset your password in the Geminia Life agency portal </p>. " +
-                        "<p><b>Token No.: ${it.agentPasswordResetCode}</p></b>"
-            params.put("text", emailBody)
-
-            notificationResourceHelper.sendEmailNoAttachment(params)*/
             val receipent = client.clientEmail
-            val emailSubject = "Geminia Life Portal: Password Reset for Client : ${client.clientOtherNames} ${client.clientName}"
+            val emailSubject = "$portalName: Password Reset for Client : ${client.clientOtherNames} ${client.clientName}"
             val emailBody: String =
-                "Dear ${client.clientOtherNames} ${client.clientName}.\n\nKindly input the token number below to reset your password in the Geminia Life portal\n\nReset Code.: ${it.clientPasswordResetCode}.\n\n Geminia Life Insurance Company."
+                "Dear ${client.clientOtherNames} ${client.clientName}.\n\nKindly input the token number below to reset your password in the $portalName\n\nReset Code.: ${it.clientPasswordResetCode}.\n\n $companyName."
             notificationResourceHelper.sendSimpleEmail(receipent!!,emailSubject, emailBody, true)
 
             return ResultFactory.getSuccessResult("Password successfully reset")
@@ -723,7 +710,7 @@ class UsersServiceImpl: IUsersService {
 
     override fun emailSendService(receipent: String): Result<String>{
         val emailBody: String =
-            "Dear Client.\n\nKindly input the token number below to reset your password in the Geminia Life portal.\n\nReset Code.: XXXXXX\n\n"
+            "Dear Client.\n\nKindly input the token number below to reset your password in the $portalName.\n\nReset Code.: XXXXXX\n\n"
         notificationResourceHelper.sendSimpleEmail(receipent,"Test Email", emailBody, true)
         return ResultFactory.getSuccessResult("Password successfully reset")
     }

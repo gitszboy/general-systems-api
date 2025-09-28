@@ -13,6 +13,7 @@ import com.ag.generalsystemsapi.api.service.IServiceRequestService
 import com.ag.generalsystemsapi.api.util.Result
 import com.ag.generalsystemsapi.api.util.ResultFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -42,6 +43,12 @@ class ServiceRequestServiceImpl : IServiceRequestService {
 
     @Autowired
     lateinit var notificationResourceHelper: NotificationResourceHelper
+
+    @Value("\${portal-name}")
+    lateinit var portalName: String
+
+    @Value("\${company-name}")
+    lateinit var companyName: String
 
     override fun saveServiceRequest(serviceRequest: ServiceRequest){
         val user: UsersModel = usersRepo.findByUserId(serviceRequest.servReqUserRequesting)
@@ -84,7 +91,7 @@ class ServiceRequestServiceImpl : IServiceRequestService {
                 "<p>Dear ${sr.servReqUserAssignedTo?.userFullName}.</p>" +
                         "<p>A Service request by the user ${user.userFullName} has been created for your action: </p>. " +
                         "<p><b>Description: ${serviceRequest.servReqDescription}</p></b>" +
-                        "<p>Geminia Life Assurance Limited</p>. "
+                        "<p>$companyName</p>. "
             notificationResourceHelper.sendSimpleEmail(receipent,emailSubject, emailBody, true)
         }
 

@@ -1,12 +1,12 @@
 package com.ag.generalsystemsapi.api.service.impl
 
-import com.ag.generalsystemsapi.api.model.ProspectPetsModel
-import com.ag.generalsystemsapi.api.model.ProspectsModel
-import com.ag.generalsystemsapi.api.model.QuotationModel
-import com.ag.generalsystemsapi.api.model.QuotationRisksModel
+import com.ag.generalsystemsapi.api.helpers.FileUploadResourceHelper
+import com.ag.generalsystemsapi.api.model.*
 import com.ag.generalsystemsapi.api.model.payload.ProspectPetsRequest
 import com.ag.generalsystemsapi.api.model.payload.ProspectsRequest
 import com.ag.generalsystemsapi.api.model.payload.QuotationRequest
+import com.ag.generalsystemsapi.api.model.view.PolicyRiskUploadsView
+import com.ag.generalsystemsapi.api.model.view.QuotationRiskUploadsView
 import com.ag.generalsystemsapi.api.model.view.QuotationRisksSummary
 import com.ag.generalsystemsapi.api.model.view.QuotationSummary
 import com.ag.generalsystemsapi.api.repository.*
@@ -15,6 +15,7 @@ import com.ag.generalsystemsapi.api.util.Result
 import com.ag.generalsystemsapi.api.util.ResultFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -53,6 +54,18 @@ class QuotationsServiceImpl : IQuotationsService {
 
     @Autowired
     lateinit var binderGroupsRepo: BinderGroupsRepository
+
+    @Autowired
+    lateinit var fileUploadResourceHelper: FileUploadResourceHelper
+
+    @Autowired
+    lateinit var fileDetailsRepo: FileDetailsRepository
+
+    @Autowired
+    lateinit var fileTypesRepo: FileTypesRepository
+
+    @Autowired
+    lateinit var quotationUploadsRepo: QuotationUploadsRepository
 
     override fun saveQuotation(request: QuotationRequest) : Result<QuotationSummary>{
         val product = productsRepo.findById(request.quoteProduct)
@@ -220,5 +233,64 @@ class QuotationsServiceImpl : IQuotationsService {
             quoteStatus = quote.quoteStatus,
             quoteRisks = risks
         )
+    }
+
+    override fun uploadQuoteRiskDocument(quoRiskCode: Long, fileTypeCode: Long, file: MultipartFile) : Result<Iterable<QuotationRiskUploadsView>>{
+        val risk = quoteRisksRepo.findById(quoRiskCode)
+            .orElseThrow { Exception("Pet not found") }
+
+        val fileType = fileTypesRepo.findById(fileTypeCode)
+            .orElseThrow { Exception("File Type not found") }
+
+        //Upload File.
+        var uplFile = fileUploadResourceHelper.uploadFile(file, "quoteDocuments", risk.quoteRiskPropertyId!!)
+        uplFile = fileDetailsRepo.save(uplFile)
+
+        //Add upload tracker.
+        val upl = QuotationUploadsModel(
+            quoRiskUploadsCode = null,
+            quoRiskUploadsRisk = risk,
+            quoRiskUploadDate = Calendar.getInstance().time,
+            quoRiskUploadsFileDetails = uplFile,
+            quoRiskUploadsFileType = fileType
+        )
+        quotationUploadsRepo.save(upl)
+
+        val uploadList = quotationUploadsRepo
+            .findByQuoRiskUploadsRisk(risk)
+            .map { QuotationRiskUploadsView(
+                quoRiskUploadsCode = it.quoRiskUploadsCode,
+                quoRiskUploadsRisk = it.quoRiskUploadsRisk?.quoteRiskCode,
+                fileTypeName = it.quoRiskUploadsFileType?.fileTypeName,
+                fileUploadFileName = it.quoRiskUploadsFileDetails?.fileUploadFileName,
+                fileUploadFileUri = it.quoRiskUploadsFileDetails?.fileUploadFileName,
+                fileUploadFileDownloadUri = it.quoRiskUploadsFileDetails?.fileUploadFileName,
+                fileUploadFileSize = it.quoRiskUploadsFileDetails?.fileUploadFileSize,
+                fileUploadDate = it.quoRiskUploadsFileDetails?.fileUploadDate,
+            ) }
+        return ResultFactory.getSuccessResult(uploadList)
+    }
+
+    override fun findQuotationDocuments(quoRiskCode: Long) : Result<Iterable<QuotationRiskUploadsView>>{
+        val risk = quoteRisksRepo.findById(quoRiskCode)
+            .orElseThrow { Exception("Pet not found") }
+
+        val uploadList = quotationUploadsRepo
+            .findByQuoRiskUploadsRisk(risk)
+            .map { QuotationRiskUploadsView(
+                quoRiskUploadsCode = it.quoRiskUploadsCode,
+                quoRiskUploadsRisk = it.quoRiskUploadsRisk?.quoteRiskCode,
+                fileTypeName = it.quoRiskUploadsFileType?.fileTypeName,
+                fileUploadFileName = it.quoRiskUploadsFileDetails?.fileUploadFileName,
+                fileUploadFileUri = it.quoRiskUploadsFileDetails?.fileUploadFileName,
+                fileUploadFileDownloadUri = it.quoRiskUploadsFileDetails?.fileUploadFileName,
+                fileUploadFileSize = it.quoRiskUploadsFileDetails?.fileUploadFileSize,
+                fileUploadDate = it.quoRiskUploadsFileDetails?.fileUploadDate,
+            ) }
+        return ResultFactory.getSuccessResult(uploadList)
+    }
+
+    override fun findQuotationFileTypes() : Result<Iterable<FileTypesModel>>{
+        return ResultFactory.getSuccessResult(fileTypesRepo.findByFileTypeArea("U"))
     }
 }

@@ -14,6 +14,7 @@ import java.util.Calendar
 import kotlin.random.Random
 import com.ag.generalsystemsapi.api.util.*
 import com.ag.generalsystemsapi.thirdparty.repository.TpAgentsRepository
+import org.springframework.beans.factory.annotation.Value
 
 @Service
 class LoginServiceImpl : ILoginService {
@@ -26,6 +27,12 @@ class LoginServiceImpl : ILoginService {
 
     @Autowired
     lateinit var notificationResourceHelper: NotificationResourceHelper
+
+    @Value("\${portal-name}")
+    lateinit var portalName: String
+
+    @Value("\${company-name}")
+    lateinit var companyName: String
 
 
     override fun agentAuthentication(loginRequest: LoginRequest) : AgentResponse{
@@ -83,11 +90,11 @@ class LoginServiceImpl : ILoginService {
             agentsRepository.save(agent)
 
             val params = JSONObject()
-            params.put("subject", "Geminia Life Agency Portal: Password Reset for Agent : ${agent.agentName}")
+            params.put("subject", "$portalName: Password Reset for Agent : ${agent.agentName}")
             params.put("emailAddress", agent.agentEmail)
             val emailBody: String? =
                     "<p>Dear ${agent.agentName} </p>. " +
-                    "<p>Kindly input the token number below to reset your password in the Geminia Life agency portal </p>. " +
+                    "<p>Kindly input the token number below to reset your password in the $portalName </p>. " +
                     "<p><b>Token No.: ${it.agentPasswordResetCode}</p></b>"
             params.put("text", emailBody)
 

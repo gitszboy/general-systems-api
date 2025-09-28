@@ -9,6 +9,7 @@ class ClinicalVisitServicesView  (
     var visitServPerilName: String? = null,
     var visitServDate: Date? = null,
     var visitServLimitAmt: Double? = null,
+    var visitServLimitPerClaim: Double? = null,
     var visitServClaimAmt: Double? = null,
     var visitServNoOfClaims: Long? = null,
     var visitServInsuredAmt: Double? = null,

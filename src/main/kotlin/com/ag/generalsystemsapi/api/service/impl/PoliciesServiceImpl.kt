@@ -161,9 +161,15 @@ class PoliciesServiceImpl : IPoliciesService {
 
     override fun findPolicyRiskDetails(riskID: String) : Result<PolicyRiskResponse>{
         val risk = policyRisksRepo.findByPolicyRiskPropertyID(riskID)
-            .orElseThrow { Exception("Policy not found") }
+            .orElse(null)
 
-        return ResultFactory.getSuccessResult(constructRiskSummary(risk.policyRiskCode!!))
+        return if(risk == null){
+            val tqRisk = tpActivePetPolicyRisksRepo.findByPolicyRiskPropertyID(riskID)
+            populatePetPolicy(tqRisk?.policyRiskPolicyBatchNo!!)
+            ResultFactory.getSuccessResult(constructRiskSummary(tqRisk.policyRiskCode!!))
+        }else{
+            ResultFactory.getSuccessResult(constructRiskSummary(risk.policyRiskCode!!))
+        }
     }
 
     override fun populatePetPolicy(policyBatchNo: Long){

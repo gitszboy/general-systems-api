@@ -3,7 +3,7 @@ spring:
     name: general-systems-apis
   mail:
     host: smtp.office365.com
-    port: 25
+    port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     protocol: smtp
@@ -45,17 +45,12 @@ organization-email: info@agilecraft.co.ke
 organization-website: http://www.agilecraft.co.ke
 
 server:
-  #port: 8080
-  port: 8443
-  ssl:
-    key-store: ${SSL_KEYSTORE}
-    key-store-password: ${SSL_KEYSTORE_PASS}
-    key-store-type: PKCS12
-    key-alias: 1 #mycert
+  port: 8080
+  #port: 443
 
 
   servlet:
-    context-path: /general-systems-apis
+    context-path: /generalsystems
   error:
     include-message: always
     include-binding-errors: always
@@ -88,6 +83,10 @@ uploads:
         location: ${UPLOADS_LOCATION}
 
 reports-service: https://services.geminialife.co.ke:9443/lifereports
+
+portal-name: ${PORTAL_NAME}
+
+company-name: ${ORGANIZATION_NAME}
 
 mobile:
   consumerKey: ${MOBILE_CONSUMER_KEY}

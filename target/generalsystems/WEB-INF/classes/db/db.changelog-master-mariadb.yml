@@ -2942,7 +2942,7 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
               - column:
-                  name: bindlg_bind_code
+                  name: bindlg_bindg_code
                   type: BIGINT
                   constraints:
                     nullable: true
@@ -3172,5 +3172,219 @@ databaseChangeLog:
               - column:
                   name: cvs_status
                   type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-serv_limit_per_clm
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='clinical_visit_services' AND column_name = 'cvs_limit_per_clm_amt'
+      changes:
+        - addColumn:
+            tableName: clinical_visit_services
+            columns:
+              - column:
+                  name: cvs_limit_per_clm_amt
+                  type: double
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-serv_max_no_per_clm
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='clinical_visit_services' AND column_name = 'cvs_max_no_of_claims'
+      changes:
+        - addColumn:
+            tableName: clinical_visit_services
+            columns:
+              - column:
+                  name: cvs_max_no_of_claims
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-pol-risk-per-bal-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='pol_risk_peril_balances'
+      changes:
+        - createTable:
+            tableName: pol_risk_peril_balances
+            columns:
+              - column:
+                  name: prpb_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: prpb_ipu_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "policy_risks"
+                      baseColumnNames: "ipu_code"
+                      constraintName: "fk_prpb_ipu_code"
+                      referencedTableName: "pol_risk_peril_balances"
+                      referencedColumnNames: "prpb_ipu_code"
+              - column:
+                  name: prpb_sspr_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "subcl_sction_perils"
+                      baseColumnNames: "sspr_code"
+                      constraintName: "fk_prpb_sspr_code"
+                      referencedTableName: "pol_risk_peril_balances"
+                      referencedColumnNames: "prpb_sspr_code"
+              - column:
+                  name: prpb_limit_per_clm
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_total_limit
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_max_clm_limit
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_balance
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_actual_balance
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_virtual_balance
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_total_clms
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_status
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prpb_cv_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "clinical_visit"
+                      baseColumnNames: "cv_code"
+                      constraintName: "fk_prpb_cv_code"
+                      referencedTableName: "pol_risk_peril_balances"
+                      referencedColumnNames: "prpb_cv_code"
+  - changeSet:
+      id: add-peril-person-limit
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='subcl_sction_perils' AND column_name = 'sspr_person_limit'
+      changes:
+        - addColumn:
+            tableName: subcl_sction_perils
+            columns:
+              - column:
+                  name: sspr_person_limit
+                  type: double
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-clinic-claims-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='clinical_visit_claims'
+      changes:
+        - createTable:
+            tableName: clinical_visit_claims
+            columns:
+              - column:
+                  name: cvcl_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: cvcl_org_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "organizations"
+                      baseColumnNames: "org_code"
+                      constraintName: "fk_cvcl_org_code"
+                      referencedTableName: "clinical_visit_claims"
+                      referencedColumnNames: "cvcl_org_code"
+              - column:
+                  name: cvcl_cv_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "clinical_visit"
+                      baseColumnNames: "cv_code"
+                      constraintName: "fk_cvcl_cv_code"
+                      referencedTableName: "clinical_visit_claims"
+                      referencedColumnNames: "cvcl_cv_code"
+              - column:
+                  name: cvcl_claim_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvcl_claim_amt
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvcl_search_status
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: cvcl_status
+                  type: varchar(500)
                   constraints:
                     nullable: true

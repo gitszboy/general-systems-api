@@ -18,4 +18,5 @@ class ClinicalVisitRequest (
     var visitExaminations: String? = null,
     var visitClinicalDiagnosis: String? = null,
     var visitFinalDiagnosis: String? = null,
+    var visitManagement: String? = null
 )

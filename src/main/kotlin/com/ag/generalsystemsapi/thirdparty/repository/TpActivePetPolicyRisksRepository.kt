@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface TpActivePetPolicyRisksRepository : JpaRepository<TpActivePetPolicyRisksModel, Long> {
 
     fun findByPolicyRiskPolicyBatchNo(policyRiskPolicyBatchNo: Long?) : Iterable<TpActivePetPolicyRisksModel>
+
+    fun findByPolicyRiskPropertyID(policyRiskPropertyID: String?) : TpActivePetPolicyRisksModel?
 }

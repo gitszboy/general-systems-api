@@ -13,20 +13,20 @@ class FileDetailsModel (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fle_code")
-    var agnComUploadsCode: Long? = null,
+    var fileUploadsCode: Long? = null,
 
     @Column(name = "fle_filename", nullable = true)
-    var agnComUploadFileName: String?,
+    var fileUploadFileName: String? = null,
 
     @Column(name = "fle_fileUri", nullable = true)
-    var agnComUploadFileUri: String?,
+    var fileUploadFileUri: String? = null,
 
     @Column(name = "fle_fileDownloadUri", nullable = true)
-    var agnComUploadFileDownloadUri: String?,
+    var fileUploadFileDownloadUri: String? = null,
 
     @Column(name = "fle_filesize", nullable = true)
-    var agnComUploadFileSize: Long?,
+    var fileUploadFileSize: Long? = null,
 
     @Column(name = "fle_upload_date", nullable = true)
-    var agnComUploadDate: Date? = null,
+    var fileUploadDate: Date? = null,
 )

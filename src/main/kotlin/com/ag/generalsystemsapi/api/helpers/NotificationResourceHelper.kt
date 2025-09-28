@@ -65,8 +65,6 @@ class NotificationResourceHelper {
     fun sendSimpleEmail(receipent: String, msgSubject: String, msgBody: String, formatMsg: Boolean?){
         // Try block to check for exceptions
          try {
-             //val sender = "life@geminialife.co.ke"
-
              // Creating a simple mail message
             val mailMessage = SimpleMailMessage()
 

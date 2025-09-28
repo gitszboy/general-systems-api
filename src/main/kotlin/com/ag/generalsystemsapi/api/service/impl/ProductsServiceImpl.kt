@@ -153,16 +153,21 @@ class ProductsServiceImpl : IProductsService{
 
             //fetch class perils.
             for(cp in tpClassPerilsRepo.findByClPerilClassCode(classes.classCode)){
-                var classPerils = ClassPerilsModel(
-                    clPerilCode = cp.clPerilCode,
-                    clPerilPerilCode = perilsRepo.findById(cp.clPerilPerilCode!!).orElseThrow {Exception("peril not found") } ,
-                    clPerilType = cp.clPerilType,
-                    clPerilSIorLimit = cp.clPerilSIorLimit,
-                    clPerilLimit = cp.clPerilLimit,
-                    clPerilClassCode = classes,
-                    clPerilExpireOnClaim = cp.clPerilExpireOnClaim
-                )
-                classPerils = classPerilsRepo.save(classPerils)
+                var p = perilsRepo.findById(cp.clPerilPerilCode!!)
+                    .orElse(null)
+                if(p != null) {
+                    var classPerils = ClassPerilsModel(
+                        clPerilCode = cp.clPerilCode,
+                        clPerilPerilCode = p,
+                        clPerilType = cp.clPerilType,
+                        clPerilSIorLimit = cp.clPerilSIorLimit,
+                        clPerilLimit = cp.clPerilLimit,
+                        clPerilClassCode = classes,
+                        clPerilExpireOnClaim = cp.clPerilExpireOnClaim,
+                        clPersonLimit = cp.clPersonLimit
+                    )
+                    classPerils = classPerilsRepo.save(classPerils)
+                }
             }
 
             //fetch subclasses.
@@ -299,6 +304,6 @@ class ProductsServiceImpl : IProductsService{
     }
 
     override fun findPetProducts() : Result<ProductsModel?>{
-        return ResultFactory.getSuccessResult(productsRepo.findByProductCode(7907L))
+        return ResultFactory.getSuccessResult(productsRepo.findByProductCode(2749L))
     }
 }

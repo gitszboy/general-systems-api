@@ -43,4 +43,10 @@ class ClinicalVisitServicesModel(
 
     @Column(name = "cvs_status", nullable = true)
     var visitServStatus: String? = null,
+
+    @Column(name = "cvs_limit_per_clm_amt", nullable = true)
+    var visitServLimitPerClaimAmt: Double? = null,
+
+    @Column(name = "cvs_max_no_of_claims", nullable = true)
+    var visitServMaxNoOfClaims: Long? = null,
 )
