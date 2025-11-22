@@ -42,4 +42,7 @@ class UsersModel (
 
     @Column(name = "user_pass_reset_date", nullable = true)
     var userPasswordResetDate: Date? = null,
+
+    @Column(name = "user_telephone", nullable = true)
+    var userTelephone: String? = null,
 )

@@ -12,7 +12,9 @@ import com.ag.generalsystemsapi.api.util.Result
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -35,7 +37,7 @@ class QuotationsController {
 
     @Operation(summary = "Find Organization Quotations", description = "Fetches  Organization Quotations")
     @GetMapping("/findOrganizationQuotes", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun findOrganizationQuotes(@RequestParam(required = true) orgCode: Long): Result<Iterable<QuotationSummary>> = iQuotationsService.findOrganizationQuotes(orgCode)
+    fun findOrganizationQuotes(@RequestParam(required = true) orgCode: Long, @RequestParam(required = false) prospectCode: Long?): Result<Iterable<QuotationSummary>> = iQuotationsService.findOrganizationQuotes(orgCode, prospectCode)
 
     @Operation(summary = "Find Quotation Details", description = "Fetches Quotation Details")
     @GetMapping("/findQuoteDetails", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -52,8 +54,8 @@ class QuotationsController {
     }
 
     @Operation(summary = "find Quotation Risk Documents", description = "find Quotation Risk Documents")
-    @GetMapping("/findClinicalVisitDocuments", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun findClinicalVisitDocuments(
+    @GetMapping("/findQuotationDocuments", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findQuotationDocuments(
         @RequestParam(name= "quoRiskCode", required = true) quoRiskCode: Long,
     ): Result<Iterable<QuotationRiskUploadsView>> {
         return iQuotationsService.findQuotationDocuments(quoRiskCode)
@@ -66,4 +68,12 @@ class QuotationsController {
         return iQuotationsService.findQuotationFileTypes()
     }
 
+    @Operation(summary = "Create Quotation In Third Party", description = "Saves Create Quotation In Third Party")
+    @RequestMapping(value = ["/createPolicyInThirdPartySystem"], method = [RequestMethod.POST])
+    fun createPolicyInThirdPartySystem(
+        @RequestParam(name= "quoCode", required = true) quoCode: Long,
+    ): ResponseEntity<*> {
+        iQuotationsService.createPolicyInThirdPartySystem(quoCode)
+        return ResponseEntity("Success", HttpStatus.OK)
+    }
 }

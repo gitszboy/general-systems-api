@@ -4,4 +4,5 @@ class RegisterOrganizationUserRequest (
     var userFullName: String,
     var email: String,
     var orgCode: Long,
+    var telephone: String?,
 )

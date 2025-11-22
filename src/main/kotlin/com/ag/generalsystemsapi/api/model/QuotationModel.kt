@@ -59,4 +59,10 @@ class QuotationModel (
 
     @Column(name = "quo_cover_to_date", nullable = true)
     var quoteCoverToDate: Date? = null,
+
+    @Column(name = "quo_tp_policy_no", nullable = true)
+    var quoteTpPolicyNo: String? = null,
+
+    @Column(name = "quo_tp_pol_batch_no", nullable = true)
+    var quoteTpPolBatchNo: Long? = null,
 )

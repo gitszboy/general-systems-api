@@ -2,6 +2,7 @@ package com.ag.generalsystemsapi.api.service.impl
 
 import com.ag.generalsystemsapi.api.model.*
 import com.ag.generalsystemsapi.api.model.view.BindersView
+import com.ag.generalsystemsapi.api.model.view.KeyValueView
 import com.ag.generalsystemsapi.api.repository.*
 import com.ag.generalsystemsapi.api.service.IProductsService
 import com.ag.generalsystemsapi.api.util.Result
@@ -89,7 +90,23 @@ class ProductsServiceImpl : IProductsService{
     @Autowired
     lateinit var tpSubClassPerilsMapRepo: TpSubClassPerilsMapRepository
 
+    @Autowired
+    lateinit var tpSubClassCoverTypesSectionsRepo: TpSubClassCoverTypesSectionsRepository
+
+    @Autowired
+    lateinit var subClassCoverTypesSectionsRepo: SubClassCoverTypesSectionsRepository
+
+    @Autowired
+    lateinit var tpPremiumRatesRepo: TpPremiumRatesRepository
+
+    @Autowired
+    lateinit var premiumRatesRespo: PremiumRatesRespository
+
     override fun populateProductDetails(){
+
+        //Purge Products.
+        purgeProductSetups()
+        println("purged.")
 
         //fetch products.
         for(p in tpProductsRepo.findAll()){
@@ -139,7 +156,7 @@ class ProductsServiceImpl : IProductsService{
             )
             coverTypesRepo.save(coverType)
         }
-
+        println("phase 1.")
         //fetch classes.
         for(c in tpClassesRepo.findAll()){
             var classes = ClassesModel(
@@ -225,10 +242,10 @@ class ProductsServiceImpl : IProductsService{
                         subClassPerilsMapRepo.save(perilMap)
                     }
                 }
-
+                println("phase 2.")
                 //fetch subclass cover types.
                 for(sc in tpSubClassCoverTypesRepo.findByScCoverSubClass(s.subClassCode)){
-                    val subCover = SubClassCoverTypesModel(
+                    var subCover = SubClassCoverTypesModel(
                         scCoverCode = sc.scCoverCode,
                         scCoverCoverTypeCode = coverTypesRepo.findByCoverCode(sc.scCoverCoverTypeCode),
                         scCoverCoverTypeShtDesc = sc.scCoverCoverTypeShtDesc,
@@ -236,43 +253,57 @@ class ProductsServiceImpl : IProductsService{
                         scCoverSubClass = subClasses,
                         scCoverDefault = sc.scCoverDefault
                     )
-                    subClassCoverTypesRepo.save(subCover)
-                }
+                    subCover = subClassCoverTypesRepo.save(subCover)
 
+                    //fetch subclass cover types sections.
+                    for(scs in tpSubClassCoverTypesSectionsRepo.findByScCoverSectSubClassCoverTypeCode(subCover.scCoverCode)){
+                        val scsec = SubClassCoverTypesSectionsModel(
+                            scCoverSectCode = scs.scCoverSectCode,
+                            scCoverSectSubClassCode = subClasses,
+                            scCoverSectCoverTypeCode = coverTypesRepo.findByCoverCode(sc.scCoverCoverTypeCode),
+                            scCoverSectSubClassCoverTypeCode = subCover,
+                            scCoverSectSectionCode = sectionsRepo.findById(scs.scCoverSectSectionCode!!).orElse(null),
+                        )
+                        subClassCoverTypesSectionsRepo.save(scsec)
+                    }
+                }
             }
         }
+        println("phase 3.")
     }
 
-    /*override fun findProductBinders(prodCode: Long) : Result<Iterable<BindersView>>{
-        val product = productsRepo.findById(prodCode)
-            .orElseThrow {Exception("Product not found") }
+    override fun populateSubClassPremRates(subclassCode: Long){
+        for(r in tpPremiumRatesRepo.findByRateSubClassCode(subclassCode)){
+            val rate = PremiumRatesModel(
+                rateCode = r.rateCode,
+                rateSectCode = r.rateSectCode,
+                rateValue = r.rateValue,
+                rateWef = r.rateWef,
+                rateSubClassCode = r.rateSubClassCode,
+                rateBindCode = r.rateBindCode,
+                rateRangeFrom = r.rateRangeFrom,
+                rateRangeTo = r.rateRangeTo,
+                rateDivFactor = r.rateDivFactor,
+                rateFreqType = r.rateFreqType
+            )
+            premiumRatesRespo.save(rate)
+        }
 
-        val subClass = productSubClassesRepo.findByProdSubClassProdCodeAndProdSubClassDefault(product, "Y")
-            .orElseThrow {Exception("Subclass not found") }
-
-        val risks = bindersRepo.findByBindSubClassCodeAndBindWebDefault(subClass.prodSubClassSubclassCode, "Y")
-            .map { r ->
-                val binderLimits = binderLimitsRepo.findByBindLimitBinders(r)
-                    .map { it.bindLimitAmount }
-
-                BindersView(
-                     bindCode = r.bindCode,
-                     bindAgentCode = r.bindAgentCode,
-                     bindAgentShtDesc = r.bindAgentShtDesc,
-                     bindWef = r.bindWef,
-                     bindWet = r.bindWet,
-                     bindSubClassCode = r.bindSubClassCode?.subClassCode,
-                     bindRemarks = r.bindRemarks,
-                     bindName = r.bindName,
-                     bindShtDesc = r.bindShtDesc,
-                     bindType = r.bindType,
-                     bindDefault = r.bindDefault,
-                     bindWebDefault = r.bindWebDefault,
-                     binderLimits = binderLimits
-                )
-            }
-        return ResultFactory.getSuccessResult(risks)
-    }*/
+    }
+    fun purgeProductSetups(){
+        subClassCoverTypesSectionsRepo.deleteAll()
+        subClassCoverTypesRepo.deleteAll()
+        subClassPerilsMapRepo.deleteAll()
+        bindersRepo.deleteAll()
+        productSubClassesRepo.deleteAll()
+        subClassesRepo.deleteAll()
+        classPerilsRepo.deleteAll()
+        classesRepo.deleteAll()
+        sectionsRepo.deleteAll()
+        perilsRepo.deleteAll()
+        coverTypesRepo.deleteAll()
+        productsRepo.deleteAll()
+    }
 
     override fun findProductBinders(prodCode: Long) : Result<Iterable<BindersView>>{
         val product = productsRepo.findById(prodCode)
@@ -304,6 +335,15 @@ class ProductsServiceImpl : IProductsService{
     }
 
     override fun findPetProducts() : Result<ProductsModel?>{
-        return ResultFactory.getSuccessResult(productsRepo.findByProductCode(2749L))
+        return ResultFactory.getSuccessResult(productsRepo.findByProductCode(2949L))
+    }
+
+    override fun findDefaultPetProducts() : Result<KeyValueView>{
+        val product = productsRepo.findByProductCode(2949L)
+        val result = KeyValueView(
+            code = product?.productCode,
+            name = product?.productDesc
+        )
+        return ResultFactory.getSuccessResult(result)
     }
 }

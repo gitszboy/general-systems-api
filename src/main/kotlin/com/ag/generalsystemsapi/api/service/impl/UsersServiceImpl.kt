@@ -72,11 +72,17 @@ class UsersServiceImpl: IUsersService {
     @Autowired
     lateinit var organizationAccountsRepo: OrganizationAccountsRepository
 
+    @Autowired
+    lateinit var prospectsAccountsRepo: ProspectsAccountsRepository
+
     @Value("\${portal-name}")
     lateinit var portalName: String
 
     @Value("\${company-name}")
     lateinit var companyName: String
+
+    @Autowired
+    lateinit var prospectsRepo: ProspectsRepository
 
     override fun RegisterSystemUser(userRequest: RegisterUserRequest) {
 
@@ -254,6 +260,7 @@ class UsersServiceImpl: IUsersService {
                 username = userRequest.email,
                 userFullName = userRequest.userFullName,
                 userEmail = userRequest.email,
+                userTelephone = userRequest.telephone,
                 userActive = agnActive,
                 password = passwordEncoder.encode(password),
                 userType = "P"
@@ -289,6 +296,11 @@ class UsersServiceImpl: IUsersService {
                 agnAccActivationDate = Calendar.getInstance().time
             )
             organizationAccountsRepo.save(orgAcc)
+
+            //Send SMS Notification on Password to User.
+            if(!userRequest.telephone.isNullOrBlank()){
+                smsPasswordSendService(userRequest.telephone!!, password)
+            }
 
             //Send Email Notification on Password to User.
             val receipent = userRequest.email
@@ -340,6 +352,7 @@ class UsersServiceImpl: IUsersService {
                 username = userRequest.email,
                 userFullName = userRequest.userFullName,
                 userEmail = userRequest.email,
+                userTelephone = userRequest.telephone,
                 userActive = agnActive,
                 password = passwordEncoder.encode(password),
                 userType = "S"
@@ -376,6 +389,11 @@ class UsersServiceImpl: IUsersService {
             )
             organizationAccountsRepo.save(orgAcc)
 
+            //Send SMS Notification on Password to User.
+            if(!userRequest.telephone.isNullOrBlank()){
+                smsPasswordSendService(userRequest.telephone!!, password)
+            }
+
             //Send Email Notification on Password to User.
             val receipent = userRequest.email
             val emailSubject = "Cannon Insurance Provider Portal Password Reset"
@@ -392,86 +410,86 @@ class UsersServiceImpl: IUsersService {
         return ResultFactory.getSuccessResult ("User Successfully Registered")
     }
 
-    override fun RegisterClientUser(userRequest: RegisterClientUserRequest) {
+    override fun RegisterProspectUser(userRequest: RegisterClientUserRequest) : Result<String>{
 
         // add check for username exists in a DB
-        if (usersRepository.existsByUsername(userRequest.userName)) {
+        if (usersRepository.existsByUsername(userRequest.emailAddress)) {
             //return ResponseEntity("Username is already taken!", HttpStatus.BAD_REQUEST)
-            throw Exception("ID Number is already assigned to another user!")
+            throw Exception("Email address is already assigned to another user")
         }
 
-        //Check password conformance.
-        val validationResult = passwordValidator(userRequest.password)
-        if (!validationResult.isValid) {
-            val message = validationResult.errors.joinToString(" ")
-            throw IllegalArgumentException("Invalid password: $message")
+        // add check for username exists in a DB
+        if (prospectsRepo.existsByProspectIdNumber(userRequest.idNumber)) {
+            //return ResponseEntity("Username is already taken!", HttpStatus.BAD_REQUEST)
+            throw Exception("ID or Passport Number already registered.")
         }
 
-        var client = clientsRepo.findByClientIdNumber(userRequest.userName)
-        if(client == null){
-           val tpClient = tpClientsRepo.findByClientIdNumber(userRequest.userName)
-            for(t in tpClient){
-                client = ClientsModel(
-                    clientName = t.clientName,
-                    clientEmail = t.clientEmail?:"test@test.com",
-                    clientDateOfBirth = t.clientDateOfBirth,
-                    clientOtherNames = t.clientOtherNames,
-                    clientGender = t.clientGender,
-                    clientOccupation = t.clientOccupation,
-                    clientEmployer = t.clientEmployer,
-                    clientPhysicalAddress = t.clientPhysicalAddress,
-                    clientPIN = t.clientPIN,
-                    clientIdNumber = t.clientIdNumber,
-                    clientTqClientCode = t.clientCode,
-                    clientThirdPartySystem = "Y"
-                )
-                client = clientsRepo.save(client)
+        try {
+            //Check password conformance.
+            val validationResult = passwordValidator(userRequest.password)
+            if (!validationResult.isValid) {
+                val message = validationResult.errors.joinToString(" ")
+                throw IllegalArgumentException("Invalid password: $message")
             }
 
-        }
+            var newProspect = ProspectsModel(
+                prospectName = userRequest.userFullName,
+                prospectDateOfBirth = null,
+                prospectTelephone = userRequest.telephone,
+                prospectEmail = userRequest.emailAddress,
+                prospectIdNumber = userRequest.idNumber,
+                prospectPhysicalAddress = null,
+                prospectOccupation = null,
+            )
+            newProspect = prospectsRepo.save(newProspect)
 
-        // create user object
-        var user = UsersModel(
-            username = userRequest.userName,
-            userFullName = userRequest.userFullName,
-            userEmail = client?.clientEmail,
-            userActive = true,
-            password = passwordEncoder.encode(userRequest.password),
-            userType = "C"
-        )
+            // create user object
+            var user = UsersModel(
+                username = userRequest.emailAddress,
+                userFullName = userRequest.userFullName,
+                userEmail = userRequest.emailAddress,
+                userTelephone = userRequest.telephone,
+                userActive = true,
+                password = passwordEncoder.encode(userRequest.password),
+                userType = "PR"
+            )
 
-        user = usersRepository.save(user)
+            user = usersRepository.save(user)
 
-        //Fetch and attach Default Roles
-        /*for (r in systemRolesRepository.findByRoleDefault(true)){
+            //Fetch and attach Default Roles
+            /*for (r in systemRolesRepository.findByRoleDefault(true)){
+                val userRole = UserRolesModel(
+                    userRolesRlId = r,
+                    userRoleActive = true,
+                    userRolesUserId = user
+                )
+                userRolesRepository.save(userRole)
+            }*/
+            val role = systemRolesRepository.findByRoleName("PROSPECT")
+                .orElseThrow { Exception("role not found") }
             val userRole = UserRolesModel(
-                userRolesRlId = r,
+                userRolesRlId = role,
                 userRoleActive = true,
                 userRolesUserId = user
             )
             userRolesRepository.save(userRole)
-        }*/
-        val role = systemRolesRepository.findByRoleName("CLIENT")
-            .orElseThrow { Exception("role not found") }
-        val userRole = UserRolesModel(
-            userRolesRlId = role,
-            userRoleActive = true,
-            userRolesUserId = user
-        )
-        userRolesRepository.save(userRole)
 
-        //Save Client Account
-        val clientAcc = ClientAccountsModel(
-            clntAccClientCode = client,
-            clntAccUserId = user,
-            clntAccClientActive = true.toString(),
-            clntAccClientActivationDate = Calendar.getInstance().time
-        )
-        clientAccountsRepo.save(clientAcc)
+            //Save Prospects Account
+            val prospectAcc = ProspectsAccountsModel(
+                prosaAccProspectCode = newProspect,
+                prosaAccUserId = user,
+                prosaAccProspectActive = true.toString(),
+                prosaAccProspectActivationDate = Calendar.getInstance().time
+            )
+            prospectsAccountsRepo.save(prospectAcc)
+        }catch(e: Exception){
+            return ResultFactory.getFailResult("unable to register user ${e.message}")
+        }
+    return ResultFactory.getSuccessResult ("User Successfully Registered")
 
     }
 
-    override fun RegisterTpClientUser(idNumber: String){
+    /*override fun RegisterTpClientUser(idNumber: String){
         val client = tpClientsRepo.findByClientIdNumber(idNumber)
         for (c in client){
             if(c.clientIdNumber!=null){
@@ -486,7 +504,7 @@ class UsersServiceImpl: IUsersService {
                 throw Exception("Client has no id number specified!")
             }
         }
-    }
+    }*/
 
     fun passwordValidator(password: String?): PasswordValidationResult{
         val result = PasswordValidationResult()
@@ -577,6 +595,19 @@ class UsersServiceImpl: IUsersService {
                 userDetails.agentName = "DIRECT"
                 userDetails.agentId = "DIRECT"
                 userDetails.clientDob = client.clntAccClientCode?.clientDateOfBirth
+                userDetails.clientID = client.clntAccClientCode?.clientIdNumber
+                userDetails.clientTelephone = client.clntAccClientCode?.clientTelephone
+            }
+            "PR" -> {
+                val prospect = prospectsAccountsRepo.findByProsaAccUserId(user)
+                val organization = organizationRepo.findByOrgDefault(true)
+                userDetails.clientCode = prospect?.prosaAccProspectCode?.prospectCode
+                userDetails.clientName =
+                    prospect?.prosaAccProspectCode?.prospectName
+                userDetails.orgCode = organization.orgCode
+                userDetails.orgName = organization.orgName
+                userDetails.clientID = prospect?.prosaAccProspectCode?.prospectIdNumber
+                userDetails.clientTelephone = prospect?.prosaAccProspectCode?.prospectTelephone
             }
             "A" -> {
                 val agent = agentAccountsRepository.findByAgnAccUserId(user)
@@ -697,6 +728,12 @@ class UsersServiceImpl: IUsersService {
 
             clientsRepo.save(client)
 
+            //Send SMS Notification on Password to User.
+            if(!client.clientTelephone .isNullOrBlank()){
+                smsTokenSendService(client.clientTelephone!!, rand.toLong())
+            }
+
+
             val receipent = client.clientEmail
             val emailSubject = "$portalName: Password Reset for Client : ${client.clientOtherNames} ${client.clientName}"
             val emailBody: String =
@@ -708,11 +745,56 @@ class UsersServiceImpl: IUsersService {
         }?: return ResultFactory.getFailResult("Unable to reset password")
     }
 
+    override fun InitiateResetProspectPassword(username: String) : Result<String> {
+
+        val prospect = prospectsRepo.findByProspectEmail(username)
+            .orElseThrow{UsernameNotFoundException("User not found with username: $username")}
+
+        prospect?.let {
+            val rand = Random.nextInt(1000, 9999)
+
+            it.prospectPasswordReset = "Y"
+            it.prospectPasswordResetDate = Calendar.getInstance().time
+            it.prospectPasswordResetCode = rand.toLong()
+
+            prospectsRepo.save(prospect)
+
+            //Send SMS Notification on Password to User.
+            if(!prospect.prospectTelephone.isNullOrBlank()){
+                smsTokenSendService(prospect.prospectTelephone, rand.toLong())
+            }
+
+            val receipent = prospect.prospectEmail
+            val emailSubject = "$portalName: Password Reset for Client : ${prospect.prospectName}"
+            val emailBody: String =
+                "Dear ${prospect.prospectName}.\n\nKindly input the token number below to reset your password in the $portalName\n\nReset Code.: ${it.prospectPasswordResetCode}.\n\n $companyName."
+            notificationResourceHelper.sendSimpleEmail(receipent!!,emailSubject, emailBody, true)
+
+            return ResultFactory.getSuccessResult("Password successfully reset")
+
+        }?: return ResultFactory.getFailResult("Unable to reset password")
+    }
+
+
     override fun emailSendService(receipent: String): Result<String>{
         val emailBody: String =
             "Dear Client.\n\nKindly input the token number below to reset your password in the $portalName.\n\nReset Code.: XXXXXX\n\n"
         notificationResourceHelper.sendSimpleEmail(receipent,"Test Email", emailBody, true)
-        return ResultFactory.getSuccessResult("Password successfully reset")
+        return ResultFactory.getSuccessResult("Email successfully sent")
+    }
+
+    override fun smsPasswordSendService(receipent: String, password: String): Result<String>{
+        val smsBody =
+            "Kindly input the password: $password to access the portal"
+        notificationResourceHelper.sendSms(smsBody, receipent)
+        return ResultFactory.getSuccessResult("SMS successfully sent")
+    }
+
+    override fun smsTokenSendService(receipent: String, token: Long): Result<String>{
+        val smsBody =
+            "Kindly input the token: $token to reset your password"
+        notificationResourceHelper.sendSms(smsBody, receipent)
+        return ResultFactory.getSuccessResult("SMS successfully sent")
     }
 
     override fun resetClientPassword(clientIDNumber: String,
@@ -875,6 +957,11 @@ class UsersServiceImpl: IUsersService {
 
             usersRepository.save(client)
 
+            //Send SMS Notification on Password to User.
+            if(!client.userTelephone .isNullOrBlank()){
+                smsTokenSendService(client.userTelephone!!, rand.toLong())
+            }
+
             val receipent = client.userEmail
             val emailSubject = "Cannon Insurance Provider Portal: Password Reset"
             val emailBody: String =
@@ -884,6 +971,48 @@ class UsersServiceImpl: IUsersService {
             return ResultFactory.getSuccessResult("Password successfully reset")
 
         }?: return ResultFactory.getFailResult("Unable to reset password")
+    }
+
+    override fun resetProspectPassword(emailAddress: String,
+                                       resetCode: Long,
+                                       password: String) : Result<String> {
+
+        var status = "S"
+        var msg = "Password Successfully reset"
+        val prospect = prospectsRepo.findByProspectEmail(emailAddress)
+            .orElseThrow{UsernameNotFoundException("User not found with username: $emailAddress")}
+        prospect?.let {
+            //Check if the token provided matches.
+            if(prospect.prospectPasswordResetCode == null){
+                status = "F"
+                msg = "The reset token has not been generated"
+            }else if(resetCode == (prospect.prospectPasswordResetCode ?: 0.09)){
+                //Check password conformance.
+                val validationResult = passwordValidator(password)
+                if (!validationResult.isValid) {
+                    val message = validationResult.errors.joinToString(" ")
+                    throw IllegalArgumentException("Invalid password: $message")
+                }
+                val clntAcc = prospectsAccountsRepo.findByProsaAccProspectCode(prospect)
+                val user = clntAcc?.prosaAccUserId
+                user!!.password = passwordEncoder.encode(password)
+                usersRepository.save(user)
+
+                prospect.prospectPasswordReset = "N"
+                prospect.prospectPasswordResetDate = null
+                prospect.prospectPasswordResetCode = null
+
+                prospectsRepo.save(prospect)
+            }else{
+                status = "F"
+                msg = "The reset token provided is incorrect"
+            }
+        }
+        return if(status == "F"){
+            ResultFactory.getFailResult(msg)
+        }else{
+            ResultFactory.getSuccessResult (msg)
+        }
     }
 
     override fun resetUserPassword(email: String,

@@ -1,0 +1,8 @@
+com\ticketing\tqgisclient\StartNewWorkflowInstanceResponse.class
+com\ticketing\tqgisclient\ObjectFactory.class
+com\ticketing\tqgisclient\CreateTicketImplService.class
+com\ticketing\tqgisclient\StartTicketResponse.class
+com\ticketing\tqgisclient\StartNewWorkflowInstance.class
+com\ticketing\tqgisclient\package-info.class
+com\ticketing\tqgisclient\StartTicket.class
+com\ticketing\tqgisclient\CreateTicketImpl.class

@@ -16,6 +16,8 @@ class UsersView (
     var tpClientCode: Long? = null,
     var clientName: String? = null,
     var clientDob: Date? = null,
+    var clientID: String? = null,
+    var clientTelephone: String? = null,
     var orgCode: Long? = null,
     var orgName: String? = null,
     var roles: ArrayList<UserRoleModulesView>? = null

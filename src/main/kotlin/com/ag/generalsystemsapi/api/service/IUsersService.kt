@@ -20,8 +20,8 @@ interface IUsersService {
     fun resetAgentPassword(agentCode: String,
                            resetCode: Long,
                            password: String) : Result<String>
-    fun RegisterClientUser(userRequest: RegisterClientUserRequest)
-    fun RegisterTpClientUser(idNumber: String)
+    fun RegisterProspectUser(userRequest: RegisterClientUserRequest) : Result<String>
+    //fun RegisterTpClientUser(idNumber: String)
     fun InitiateResetClientPassword(clientIDNumber: String) : Result<String>
     fun resetClientPassword(clientIDNumber: String,
                             resetCode: Long,
@@ -41,4 +41,10 @@ interface IUsersService {
     fun resetUserPassword(email: String,
                           resetCode: Long,
                           password: String) : Result<String>
+    fun InitiateResetProspectPassword(clientIDNumber: String) : Result<String>
+    fun resetProspectPassword(emailAddress: String,
+                              resetCode: Long,
+                              password: String) : Result<String>
+    fun smsPasswordSendService(receipent: String, password: String): Result<String>
+    fun smsTokenSendService(receipent: String, token: Long): Result<String>
 }

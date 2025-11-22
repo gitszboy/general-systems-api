@@ -2,6 +2,7 @@ package com.ag.generalsystemsapi.api.service
 
 import com.ag.generalsystemsapi.api.model.OrganizationModel
 import com.ag.generalsystemsapi.api.model.payload.OrganizationRequest
+import com.ag.generalsystemsapi.api.model.view.KeyValueView
 import com.ag.generalsystemsapi.api.util.Result
 
 interface IOrganizationService {
@@ -9,4 +10,5 @@ interface IOrganizationService {
     fun findOrganizations() : Result<Iterable<OrganizationModel>>
 
     fun saveOrganization(organization: OrganizationRequest)
+    fun findDefaultOrganization() : Result<KeyValueView>
 }

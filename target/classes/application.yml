@@ -104,5 +104,6 @@ notification:
   smsApiKey: ${SMS_SERVICE_API_KEY}
   smsPartnerID: ${SMS_SERVICE_PARTNERID}
   smsShortcode: ${SMS_SERVICE_SHORT_CODE}
+  smsOrganization: ${SMS_ORGANIZATION}
 
 #notification-service: http://notification-apis-service.service.apainsurance.ke:8080/notification/email/sendEmailAttachmentBytes

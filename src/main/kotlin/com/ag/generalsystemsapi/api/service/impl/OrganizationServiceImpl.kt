@@ -2,6 +2,7 @@ package com.ag.generalsystemsapi.api.service.impl
 
 import com.ag.generalsystemsapi.api.model.OrganizationModel
 import com.ag.generalsystemsapi.api.model.payload.OrganizationRequest
+import com.ag.generalsystemsapi.api.model.view.KeyValueView
 import com.ag.generalsystemsapi.api.repository.OrganizationRepository
 import com.ag.generalsystemsapi.api.service.IOrganizationService
 import com.ag.generalsystemsapi.api.util.Result
@@ -17,6 +18,15 @@ class OrganizationServiceImpl : IOrganizationService {
 
     override fun findOrganizations() : Result<Iterable<OrganizationModel>> {
         return ResultFactory.getSuccessResult(organizationRepository.findAll())
+    }
+
+    override fun findDefaultOrganization() : Result<KeyValueView> {
+        val quoteList = organizationRepository.findByOrgDefault(true)
+        val result = KeyValueView(
+            code = quoteList.orgCode,
+            name = quoteList.orgName
+        )
+        return ResultFactory.getSuccessResult(result)
     }
 
     override fun saveOrganization(organization: OrganizationRequest){

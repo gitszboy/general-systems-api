@@ -36,4 +36,10 @@ class ClassPerilsModel   (
     @Column(name = "sspr_person_limit", nullable = true)
     var clPersonLimit: Double? = null,
 
+    @Column(name = "sspr_max_clms_allowed", nullable = true)
+    var clPerilMaxClmsAllowed: Long? = null,
+
+    @Column(name = "sspr_peril_limit_per_visit", nullable = true)
+    var clPerilLimitPerVisit: Double? = null,
+
 )

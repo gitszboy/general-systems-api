@@ -9,6 +9,7 @@ import com.ag.generalsystemsapi.api.model.payload.ClinicalVisitServicesRequest
 import com.ag.generalsystemsapi.api.model.responses.ClinicalVisitResponse
 import com.ag.generalsystemsapi.api.model.view.ClinicalVisitServicesView
 import com.ag.generalsystemsapi.api.model.view.PatientMedicalHistoryView
+import com.ag.generalsystemsapi.api.model.view.PetDashboardView
 import com.ag.generalsystemsapi.api.model.view.PolicyRiskUploadsView
 import com.ag.generalsystemsapi.api.service.IClinicalService
 import com.ag.generalsystemsapi.api.util.Result
@@ -143,4 +144,20 @@ class ClinicalController {
         return iClinicalService.findClinicalFileTypes()
     }
 
+    @Operation(summary = "Find Organization Clinical Stats", description = "Find Organization Clinical Stats")
+    @GetMapping("/findOrgDashboardClinicalStats", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findOrgDashboardClinicalStats(
+        @RequestParam(name= "orgCode", required = true) orgCode: Long,
+    ): Result<PetDashboardView> {
+        return iClinicalService.findOrgDashboardClinicalStats(orgCode)
+    }
+
+    @Operation(summary = "Push Clinical Claim", description = "Push Clinical Claim")
+    @RequestMapping(value = ["/pushClaim"], method = [RequestMethod.POST])
+    fun pushClaim(
+        @RequestParam(name= "claimCode", required = true) claimCode: Long
+    ): ResponseEntity<*> {
+         iClinicalService.pushClaim(claimCode)
+        return ResponseEntity("Success", HttpStatus.OK)
+    }
 }

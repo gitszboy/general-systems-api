@@ -5,17 +5,17 @@ import com.ag.generalsystemsapi.api.model.*
 import com.ag.generalsystemsapi.api.model.payload.ProspectPetsRequest
 import com.ag.generalsystemsapi.api.model.payload.ProspectsRequest
 import com.ag.generalsystemsapi.api.model.payload.QuotationRequest
-import com.ag.generalsystemsapi.api.model.view.PolicyRiskUploadsView
-import com.ag.generalsystemsapi.api.model.view.QuotationRiskUploadsView
-import com.ag.generalsystemsapi.api.model.view.QuotationRisksSummary
-import com.ag.generalsystemsapi.api.model.view.QuotationSummary
+import com.ag.generalsystemsapi.api.model.responses.QuoteResponse
+import com.ag.generalsystemsapi.api.model.view.*
 import com.ag.generalsystemsapi.api.repository.*
 import com.ag.generalsystemsapi.api.service.IQuotationsService
 import com.ag.generalsystemsapi.api.util.Result
 import com.ag.generalsystemsapi.api.util.ResultFactory
+import com.ag.generalsystemsapi.thirdparty.repository.TpActivePetPoliciesRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -67,7 +67,20 @@ class QuotationsServiceImpl : IQuotationsService {
     @Autowired
     lateinit var quotationUploadsRepo: QuotationUploadsRepository
 
+    @Autowired
+    lateinit var coverTypesMapRepository: CoverTypesMapRepository
+
+    @Autowired
+    lateinit var tpActivePetPoliciesRepo: TpActivePetPoliciesRepository
+
+    @Autowired
+    lateinit var premiumRatesRespo: PremiumRatesRespository
+
+    @Autowired
+    lateinit var tpTicketServiceImpl: TpTicketServiceImpl
+
     override fun saveQuotation(request: QuotationRequest) : Result<QuotationSummary>{
+        var totalPremium: Double = 0.0
         val product = productsRepo.findById(request.quoteProduct)
             .orElseThrow {Exception("Product not found") }
 
@@ -77,8 +90,8 @@ class QuotationsServiceImpl : IQuotationsService {
         val subclass = productSubClassesRepo.findByProdSubClassProdCodeAndProdSubClassDefault(product, "Y")
             .orElseThrow {Exception("Sub class not found") }
 
-        val coverType = subClassCoverTypesRepo.findByScCoverSubClassAndScCoverDefault(subclass.prodSubClassSubclassCode, "Y")
-            .orElseThrow {Exception("Cover type not found") }
+        //val coverType = subClassCoverTypesRepo.findByScCoverSubClassAndScCoverDefault(subclass.prodSubClassSubclassCode, "Y")
+        //    .orElseThrow {Exception("Cover type not found") }
 
         //Create the prospect.
         val prospect = saveProspect(request.quoteProspect)
@@ -109,15 +122,18 @@ class QuotationsServiceImpl : IQuotationsService {
             val binder = binderGroupLimitsRepo.findByBindGroupLimitGroupAndBindGroupLimitAmount(binderGroup, p.prospectPetAnnualLimit)
                 .orElseThrow {Exception("Binder not found") }
 
+            val cover = coverTypesMapRepository.findCoverMapping(p.prospectPetType!!, getAgeFromDate(p.prospectPetDateOfBirth!!).toLong())
+                .orElseThrow {Exception("Cover not found") }
+
             val pet = saveProspectPet(p, prospect)
 
-            val quotePet = QuotationRisksModel(
+            var quotePet = QuotationRisksModel(
                 quoteRiskQuotation = quote,
                 quoteRiskProspect = prospect,
                 quoteRiskProspectPet = pet,
                 quoteRiskSubClassCode = subclass.prodSubClassSubclassCode,
                 quoteRiskBindCode = binder.bindGroupLimitBinders,
-                quoteRiskCoverType = coverType.scCoverCoverTypeCode,
+                quoteRiskCoverType = cover.coverMapCover,
                 quoteRiskWef = request.quoteEffectiveDate,
                 quoteRiskWet = coverToDate,
                 quoteRiskPropertyId = pet.prospectPetMicroNumber,
@@ -125,25 +141,60 @@ class QuotationsServiceImpl : IQuotationsService {
                 quoteRiskValue = p.prospectPetAnnualLimit,
                 quoteRiskStatus = "Draft"
             )
-            quoteRisksRepo.save(quotePet)
+            quotePet = quoteRisksRepo.save(quotePet)
+
+            //Compute the premium values. TODO.
+            val rates = premiumRatesRespo.findPremiumRate(subclass.prodSubClassSubclassCode?.subClassCode,
+                                                          binder.bindGroupLimitBinders?.bindCode,
+                                                          request.quotePaymentFrequency,
+                                                          cover.coverMapSection?.sectionCode,
+                                                          request.quoteEffectiveDate
+                                                         )
+            for(r in rates){
+                val premium = r.rateValue.div(r.rateDivFactor?:1)
+                quotePet.quoteRiskPremium = premium
+                quoteRisksRepo.save(quotePet)
+                totalPremium = totalPremium.plus(premium)
+            }
         }
-
-        //Compute the premium values. TODO.
-
+        //Update Premium Values.
+        quote.quotePremium = totalPremium
+        quote = quotationRepo.save(quote)
         val result = constructQuoteSummary(quote.quoteCode!!)
 
         return ResultFactory.getSuccessResult(result)
 
     }
 
-    override fun findOrganizationQuotes(orgCode: Long): Result<Iterable<QuotationSummary>> {
+    override fun saveDirectQuote(request: QuotationRequest) : Result<QuoteResponse>{
+        val response = QuoteResponse(
+            policyNumber = null
+        )
+        //validations.
+        //TODO
+
+        //create Quotation on portal.
+        var result = saveQuotation(request)
+
+        //push quote to core system.
+        //TODO
+
+        return ResultFactory.getSuccessResult(response,"Policy Created Successfully")
+    }
+
+    override fun findOrganizationQuotes(orgCode: Long, clientCode: Long?): Result<Iterable<QuotationSummary>> {
         val organization = organizationRepo.findById(orgCode).orElse(null)
             ?: return ResultFactory.getFailResult(emptyList(), "Organization not found")
 
-        val quoteList = quotationRepo.findByQuoteOrganization(organization)
-            .mapNotNull { q -> q.quoteCode?.let { constructQuoteSummary(it) } }
-
-        return ResultFactory.getSuccessResult(quoteList)
+        if(clientCode != null){
+            val prospect = prospectsRepo.findById(clientCode).orElse(null)
+                ?: return ResultFactory.getFailResult(emptyList(), "Client not found")
+            return ResultFactory.getSuccessResult(quotationRepo.findByQuoteProspect(prospect)
+                .mapNotNull { q -> q.quoteCode?.let { constructQuoteSummary(it) } })
+        }else{
+            return ResultFactory.getSuccessResult(quotationRepo.findByQuoteOrganization(organization)
+                .mapNotNull { q -> q.quoteCode?.let { constructQuoteSummary(it) } })
+        }
     }
 
     override fun findQuoteDetails(quoteCode: Long) : Result<QuotationSummary>{
@@ -155,6 +206,18 @@ class QuotationsServiceImpl : IQuotationsService {
         calendar.time = date
         calendar.add(Calendar.YEAR, years.toInt())
         return calendar.time
+    }
+
+    fun getAgeFromDate(date: Date): Int {
+        val birthCal = Calendar.getInstance()
+        birthCal.time = date
+        val todayCal = Calendar.getInstance()
+        var age = todayCal.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR)
+        // Adjust if birthday hasn’t occurred yet this year
+        if (todayCal.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) {
+            age--
+        }
+        return age
     }
 
     fun saveProspect(prospect: ProspectsRequest) : ProspectsModel{
@@ -231,7 +294,8 @@ class QuotationsServiceImpl : IQuotationsService {
             quoteCoverFromDate = quote.quoteCoverFromDate,
             quoteCoverToDate = quote.quoteCoverToDate,
             quoteStatus = quote.quoteStatus,
-            quoteRisks = risks
+            quoteRisks = risks,
+            quotePolicyNo = quote.quoteTpPolicyNo
         )
     }
 
@@ -292,5 +356,111 @@ class QuotationsServiceImpl : IQuotationsService {
 
     override fun findQuotationFileTypes() : Result<Iterable<FileTypesModel>>{
         return ResultFactory.getSuccessResult(fileTypesRepo.findByFileTypeArea("U"))
+    }
+
+    override fun createPolicyInThirdPartySystem(quoteCode: Long) : Result<String>{
+        var quote = quotationRepo.findById(quoteCode)
+            .orElseThrow {Exception("quotation not found") }
+
+        val oracleFormat = SimpleDateFormat("dd/MM/yyyy")
+        val formattedCoverFromDate = oracleFormat.format(quote.quoteCoverFromDate)
+        val formattedCoverToDate = oracleFormat.format(quote.quoteCoverToDate)
+        var policyNumber: String? = null
+        var polBatchNo: Long? = null
+
+        //Push Policy Details.
+        val tqPolicy = tpActivePetPoliciesRepo.savePolicy(
+                            quote.quoteProspect?.prospectIdNumber,
+                            quote.quoteProspect?.prospectIdNumber,
+                            quote.quoteProspect?.prospectTelephone,
+                            quote.quoteProspect?.prospectName,
+                            null,
+                            quote.quoteProspect?.prospectName,
+                            "M",
+                            quote.quoteProspect?.prospectPhysicalAddress,
+                            null,
+                            quote.quoteProspect?.prospectEmail,
+                            "I",
+                            "0101",
+                            formattedCoverFromDate,
+                            formattedCoverToDate,
+                                "KSH",
+                                "7",
+                                null,
+                            quote.quoteProduct?.productCode
+                            )
+
+        val policy : Any? = tqPolicy["v_batch_no"]
+        if(policy != null){
+            println("policy value== $policy")
+            polBatchNo = policy.toString().toLong()
+            val polNo: Any? = tqPolicy["v_gen_pol_no"]
+            policyNumber = polNo.toString()
+
+            quote.quoteStatus = "Submitted"
+            quote.quoteTpPolicyNo = policyNumber
+            quote.quoteTpPolBatchNo = polBatchNo
+            quote = quotationRepo.save(quote)
+
+            //Create the risk information.
+            for(r in quoteRisksRepo.findByQuoteRiskQuotation(quote)){
+                val tqPolicyRisk = tpActivePetPoliciesRepo.savePolicyRisk(
+                                polBatchNo,
+                                r.quoteRiskCoverType?.coverCode,
+                                r.quoteRiskCoverType?.coverDesc,
+                                r.quoteRiskBindCode?.bindCode,
+                                r.quoteRiskPropertyId,
+                                r.quoteRiskItemDesc,
+                                r.quoteRiskSubClassCode?.subClassCode,
+                                r.quoteRiskValue,
+                                formattedCoverFromDate,
+                                formattedCoverToDate
+                            )
+
+                val policyRisk : Any? = tqPolicyRisk
+                if(policyRisk != null){
+                    println("policy risk value== $policyRisk")
+                    val ipuCode = policyRisk.toString().toLong()
+
+                    //Fetch the schedule.
+                    for(s in clientPetsRepo.findByProspectPetProspect(quote.quoteProspect)){
+                        val formattedPetDOBDate = oracleFormat.format(quote.quoteCoverToDate)
+
+                        val tqPolicyRisk = tpActivePetPoliciesRepo.savePolicyRiskSchedule(
+                                    ipuCode,
+                                    s.prospectPetType,
+                                    s.prospectPetBreed,
+                                    s.prospectPetGender,
+                                    formattedPetDOBDate,
+                                    s.prospectPetWeight,
+                                    s.prospectPetMicroAvail,
+                                    s.prospectPetMicroNumber,
+                                    s.prospectPetSterilized,
+                                    s.prospectPetVaccinated,
+                                    s.prospectPetMedicalConditions,
+                                    s.prospectPetMedicalSurgeries,
+                                    s.prospectPetMedicalMedications,
+                                    null,
+                                    s.prospectPetInjureOthers,
+                                    null,
+                                    s.prospectPetComments,
+                                    null,
+                                    null,
+                                    null,
+                                    null
+                                )
+                    }
+                }else{
+                    return ResultFactory.getFailResult("Failed to Submit Quote Risk")
+                }
+            }
+            //Create ticket.
+            tpTicketServiceImpl.startNewWorkflowInstance(
+                "GISUnderwriteProcess", "VNJUGUNA", "Underwrite Policy", "P", polBatchNo.toString(), null, null
+            )
+        }else{
+            return ResultFactory.getFailResult("Failed to Submit Quote")
+        }
+        return ResultFactory.getSuccessResult("Successfully Submitted Quote")
     }
 }

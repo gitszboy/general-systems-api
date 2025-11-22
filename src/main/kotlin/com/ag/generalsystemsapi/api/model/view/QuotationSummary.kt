@@ -19,5 +19,6 @@ class QuotationSummary (
     var quoteCoverFromDate: Date?,
     var quoteCoverToDate: Date?,
     var quoteStatus: String?,
+    var quotePolicyNo: String?,
     var quoteRisks: List<QuotationRisksSummary>
 )

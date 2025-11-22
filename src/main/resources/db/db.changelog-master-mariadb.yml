@@ -3572,3 +3572,444 @@ databaseChangeLog:
                   type: varchar(100)
                   constraints:
                     nullable: true
+  - changeSet:
+      id: add-subcl-covt-sections-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='subcl_covt_sections'
+      changes:
+        - createTable:
+            tableName: subcl_covt_sections
+            columns:
+              - column:
+                  name: scvts_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: scvts_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sub_classes"
+                      baseColumnNames: "scl_code"
+                      constraintName: "fk_scvts_scl_code"
+                      referencedTableName: "subcl_covt_sections"
+                      referencedColumnNames: "scvts_scl_code"
+              - column:
+                  name: scvts_covt_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "cover_types"
+                      baseColumnNames: "covt_code"
+                      constraintName: "fk_scvts_covt_code"
+                      referencedTableName: "subcl_covt_sections"
+                      referencedColumnNames: "scvts_covt_code"
+              - column:
+                  name: scvts_sclcovt_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "subclass_cover_types"
+                      baseColumnNames: "sclcovt_code"
+                      constraintName: "fk_scvts_sclcovt_code"
+                      referencedTableName: "subcl_covt_sections"
+                      referencedColumnNames: "scvts_sclcovt_code"
+              - column:
+                  name: scvts_sect_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sections"
+                      baseColumnNames: "sect_code"
+                      constraintName: "fk_scvts_sect_code"
+                      referencedTableName: "subcl_covt_sections"
+                      referencedColumnNames: "scvts_sect_code"
+  - changeSet:
+      id: add-cover-types-map-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='cover_types_map'
+      changes:
+        - createTable:
+            tableName: cover_types_map
+            columns:
+              - column:
+                  name: covtm_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: covtm_animal
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: covtm_min_age
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: covtm_max_age
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: covtm_covt_age
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "cover_types"
+                      baseColumnNames: "covt_code"
+                      constraintName: "fk_covtm_covt_age"
+                      referencedTableName: "cover_types_map"
+                      referencedColumnNames: "covtm_covt_age"
+  - changeSet:
+      id: add-prospects-accounts-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='prospects_accounts'
+      changes:
+        - createTable:
+            tableName: prospects_accounts
+            columns:
+              - column:
+                  name: prosa_acc_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: prosa_acc_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "system_users"
+                      baseColumnNames: "user_id"
+                      constraintName: "fk_prosa_acc_user_id"
+                      referencedTableName: "prospects_accounts"
+                      referencedColumnNames: "prosa_acc_user_id"
+              - column:
+                  name: prosa_acc_prosp_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "prospects"
+                      baseColumnNames: "prosp_code"
+                      constraintName: "fk_prosa_acc_prosp_code"
+                      referencedTableName: "prospects_accounts"
+                      referencedColumnNames: "prosa_acc_prosp_code"
+              - column:
+                  name: prosa_acc_active
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosa_acc_activated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prosa_acc_deactivated_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prospect-reset
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='prospects' AND column_name = 'prosp_pass_reset'
+      changes:
+        - addColumn:
+            tableName: prospects
+            columns:
+              - column:
+                  name: prosp_pass_reset
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prospect-reset-code
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='prospects' AND column_name = 'prosp_pass_reset_code'
+      changes:
+        - addColumn:
+            tableName: prospects
+            columns:
+              - column:
+                  name: prosp_pass_reset_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prospect-reset-date
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='prospects' AND column_name = 'prosp_pass_reset_date'
+      changes:
+        - addColumn:
+            tableName: prospects
+            columns:
+              - column:
+                  name: prosp_pass_reset_date
+                  type: datetime
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-prospect-role
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM gisagentdb.system_roles WHERE rl_name = 'PROSPECT'
+      changes:
+        - insert:
+            tableName: system_roles
+            columns:
+              - column:
+                  name: rl_name
+                  value: PROSPECT
+              - column:
+                  name: rl_active
+                  valueBoolean: true
+              - column:
+                  name: rl_default
+                  valueBoolean: false
+  - changeSet:
+      id: add-section-on-covermap-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='cover_types_map' AND column_name = 'covtm_sect_code'
+      changes:
+        - addColumn:
+            tableName: cover_types_map
+            columns:
+              - column:
+                  name: covtm_sect_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    addForeignKeyConstraint:
+                      baseTableName: "sections"
+                      baseColumnNames: "sect_code"
+                      constraintName: "fk_covtm_sect_code"
+                      referencedTableName: "cover_types_map"
+                      referencedColumnNames: "covtm_sect_code"
+  - changeSet:
+      id: add-premium-rates-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.TABLES WHERE table_schema='gisagentdb' AND table_name='premium_rates'
+      changes:
+        - createTable:
+            tableName: premium_rates
+            columns:
+              - column:
+                  name: prr_code
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: prr_sect_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_rate
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_wef
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_wet
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_scl_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_bind_code
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_range_from
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_range_to
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_division_factor
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: prr_rate_freq_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-max-clms-allowed-clmn-table
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='subcl_sction_perils' AND column_name = 'sspr_max_clms_allowed'
+      changes:
+        - addColumn:
+            tableName: subcl_sction_perils
+            columns:
+              - column:
+                  name: sspr_max_clms_allowed
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-peril-limit-per-visit-clmn
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='subcl_sction_perils' AND column_name = 'sspr_peril_limit_per_visit'
+      changes:
+        - addColumn:
+            tableName: subcl_sction_perils
+            columns:
+              - column:
+                  name: sspr_peril_limit_per_visit
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-quote-pol-no-clmn
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='quotations' AND column_name = 'quo_tp_policy_no'
+      changes:
+        - addColumn:
+            tableName: quotations
+            columns:
+              - column:
+                  name: quo_tp_policy_no
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-quote-pol-batch-no-clmn
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='quotations' AND column_name = 'quo_tp_pol_batch_no'
+      changes:
+        - addColumn:
+            tableName: quotations
+            columns:
+              - column:
+                  name: quo_tp_pol_batch_no
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: add-tel-to-system-users
+      author: Jim Gitau
+      dbms: mariadb
+      preConditions:
+        - onFail: CONTINUE
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.COLUMNS WHERE table_schema='gisagentdb' AND table_name='system_users' AND column_name = 'user_telephone'
+      changes:
+        - addColumn:
+            tableName: system_users
+            columns:
+              - column:
+                  name: user_telephone
+                  type: varchar(100)
+                  constraints:
+                    nullable: true

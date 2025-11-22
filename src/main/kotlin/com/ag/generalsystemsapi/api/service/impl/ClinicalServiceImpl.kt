@@ -11,6 +11,7 @@ import com.ag.generalsystemsapi.api.repository.*
 import com.ag.generalsystemsapi.api.service.IClinicalService
 import com.ag.generalsystemsapi.api.util.Result
 import com.ag.generalsystemsapi.api.util.ResultFactory
+import com.ag.generalsystemsapi.thirdparty.repository.TpActivePetPolicyRisksRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -63,6 +64,9 @@ class ClinicalServiceImpl : IClinicalService {
 
     @Autowired
     lateinit var computationResourceHelper: ComputationResourceHelper
+
+    @Autowired
+    lateinit var tpActivePetPolicyRisksRepo: TpActivePetPolicyRisksRepository
 
     @Transactional
     override fun startClinicalVisit(visit: ClinicalVisitRequest) : Result<ClinicalVisitResponse> {
@@ -155,11 +159,91 @@ class ClinicalServiceImpl : IClinicalService {
         return ResultFactory.getSuccessResult(constructPatientSummary(updatedClaim.clClaimVisit?.visitCode!!))
     }
 
+    override fun pushClaim(claimCode: Long){
+        var claim = clinicalVisitClaimsRepo.findById(claimCode)
+            .orElseThrow { Exception("claim not found") }
+
+        var cptGrpCode: Long? = null
+        val oracleFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+        val formattedClaimDate = oracleFormat.format(claim.clClaimDate)
+
+        for(s in clinicalVisitServicesRepo.findByVisitServVisit(claim.clClaimVisit!!)){
+            if((s.visitServInsuredAmt ?: 0.0) > 0.0){
+                var tqPeril = tpActivePetPolicyRisksRepo.saveClaimPerils(
+                    "A",
+                    null,
+                    s.visitServPeril?.clPerilCode,
+                    "S",
+                    s.visitServPeril?.clPerilPerilCode?.perilDescription,
+                    s.visitServClaimAmt,
+                    s.visitServLimitAmt,
+                    "S",
+                    null,
+                    cptGrpCode,
+                    null,
+                    null,
+                    claim.clClaimVisit!!.visitPatient?.policyRiskPolicyBatchNo?.policyClient?.clientCode,
+                    "N",
+                    null,
+                    s.visitServPeril?.clPerilPerilCode?.perilCode,
+                    0L
+                )
+
+                val res : Any? = tqPeril
+                if(res != null){
+                    println("value= $cptGrpCode = $res")
+                    cptGrpCode = res.toString().toLong()
+                }
+            }
+        }
+        if(cptGrpCode != null){
+            var tqClaim = tpActivePetPolicyRisksRepo.saveClaim(
+                claim.clClaimVisit?.visitPatient?.policyRiskCode,
+                claim.clClaimVisit?.visitPatient?.policyRiskPolicyBatchNo?.policyBatchNo,
+                formattedClaimDate,
+                formattedClaimDate,
+                null, //casCode
+                null, //casShtDesc
+                "O",
+                "MEDICAL CLAIM",
+                null,
+                "MKIHIRO",
+                null,
+                null,
+                cptGrpCode,
+                null,
+                "N",
+                null,
+                "N",
+                Calendar.getInstance().time,
+                null,
+                -2000L,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+
+        }
+    }
+
     fun populateClinicalServices(newVisit: ClinicalVisitModel){
         for(s in subClassPerilsMapRepo.findBySclPerilMapSubClassAndSclPerilMapBinder(newVisit.visitPatient?.policyRiskSubClassCode!!, newVisit.visitPatient?.policyRiskBindCode!!)){
 
             val limitAmt = s.sclPerilMapClassPeril?.let { peril ->
-                peril.clPersonLimit?.times(peril.clPerilLimit ?: 1.0) ?: peril.clPerilLimit ?: 0.0
+                peril.clPerilMaxClmsAllowed?.times(peril.clPerilLimit ?: 1.0) ?: peril.clPerilLimit ?: 0.0
             } ?: 0.0
 
             var service = ClinicalVisitServicesModel(
@@ -183,7 +267,7 @@ class ClinicalServiceImpl : IClinicalService {
         if(!policyRiskPerilBalancesRepo.existsByPolRskPerBalRiskAndPolRskPerBalPeril(visit.visitServVisit?.visitPatient ,visit.visitServPeril)){
 
             val balanceAmt = visit.visitServPeril?.let { peril ->
-                peril.clPersonLimit?.times(peril.clPerilLimit ?: 1.0) ?: peril.clPerilLimit ?: 0.0
+                peril.clPerilMaxClmsAllowed?.times(peril.clPerilLimit ?: 1.0) ?: peril.clPerilLimit ?: 0.0
             } ?: 0.0
 
             val balance = PolicyRiskPerilBalancesModel(
@@ -191,7 +275,7 @@ class ClinicalServiceImpl : IClinicalService {
                 polRskPerBalPeril = visit.visitServPeril,
                 polRskPerBalLimitPerClaim = visit.visitServPeril?.clPerilLimit,
                 polRskPerBalTotalLimit = balanceAmt,
-                polRskPerBalMaxClmLimit = visit.visitServPeril?.clPersonLimit,
+                polRskPerBalMaxClmLimit = visit.visitServPeril?.clPerilLimitPerVisit,
                 polRskPerBalBalance = balanceAmt,
                 polRskPerBalActualBal = balanceAmt,
                 polRskPerBalVirtualBal = balanceAmt,
@@ -226,6 +310,7 @@ class ClinicalServiceImpl : IClinicalService {
             val claimAmt = v.visitServClaimAmt ?: 0.0
             if (claimAmt <= 0.0) return@mapNotNull null
 
+
             val servBal = policyRiskPerilBalancesRepo
                 .findByPolRskPerBalRiskAndPolRskPerBalPeril(visit.visitPatient, peril)
 
@@ -234,11 +319,23 @@ class ClinicalServiceImpl : IClinicalService {
             balance = balance.plus(service.visitServInsuredAmt?:0.0)
 
             val (insurerPayableAmt, excessAmt, status) =
-                if (claimAmt > balance) {
-                    Triple(balance, claimAmt - balance, "Exhausted")
-                } else {
-                    Triple(claimAmt, 0.0, "Available")
-                }
+             if(claimAmt > (peril.clPerilLimitPerVisit ?: 0.00)){
+                 if ((peril.clPerilLimitPerVisit ?: 0.00) > balance) {
+                     Triple(balance, (peril.clPerilLimitPerVisit ?: 0.00) - balance, "Exhausted")
+                 }
+                 else {
+                     Triple((peril.clPerilLimitPerVisit ?: 0.00), 0.0, "Available")
+                 }
+                 Triple(peril.clPerilLimitPerVisit?:claimAmt, claimAmt - (peril.clPerilLimitPerVisit?:claimAmt), "Exhausted")
+            }else{
+                 if (claimAmt > balance) {
+                     Triple(balance, claimAmt - balance, "Exhausted")
+                 }
+                 else {
+                     Triple(claimAmt, 0.0, "Available")
+                 }
+             }
+
 
             service.apply {
                 visitServNoOfClaims = 1
@@ -490,7 +587,7 @@ class ClinicalServiceImpl : IClinicalService {
         return ResultFactory.getSuccessResult(fileTypesRepo.findByFileTypeArea("C"))
     }
 
-    fun findOrgDashboardClinicalStats(orgCode: Long) : Result<PetDashboardView>{
+    override fun findOrgDashboardClinicalStats(orgCode: Long) : Result<PetDashboardView>{
         val organization = organizationRepo.findById(orgCode)
             .orElseThrow { Exception("organization not found") }
 

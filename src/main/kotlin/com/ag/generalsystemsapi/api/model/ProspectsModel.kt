@@ -19,7 +19,7 @@ class ProspectsModel (
     var prospectName: String,
 
     @Column(name = "prosp_dob", nullable = true)
-    var prospectDateOfBirth: Date,
+    var prospectDateOfBirth: Date? = null,
 
     @Column(name = "prosp_tel", nullable = true)
     var prospectTelephone: String,
@@ -35,4 +35,13 @@ class ProspectsModel (
 
     @Column(name = "prosp_occupation", nullable = true)
     var prospectOccupation: String? = null,
+
+    @Column(name = "prosp_pass_reset", nullable = true)
+    var prospectPasswordReset: String? = "N",
+
+    @Column(name = "prosp_pass_reset_code", nullable = true)
+    var prospectPasswordResetCode: Long? = null,
+
+    @Column(name = "prosp_pass_reset_date", nullable = true)
+    var prospectPasswordResetDate: Date? = null,
 )

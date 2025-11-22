@@ -65,7 +65,8 @@ class SecurityConfiguration {
                 "/mpesa/**", //remove on prod,
                 "/login/**", //remove on prod,
                 "/clinical/**", //remove on prod,
-                "/receipt/**" //remove on prod,
+                "/receipt/**", //remove on prod,
+                "/ticketing/**" //remove on prod,
             ).permitAll()
             .anyRequest().authenticated()
             .and()

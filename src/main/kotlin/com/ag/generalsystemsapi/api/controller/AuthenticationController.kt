@@ -110,6 +110,14 @@ class AuthenticationController {
         @RequestParam(name= "receipient", required = false) receipient: String
     ) : Result<String> {
         return iUsersService.emailSendService(receipient)
+    }
+
+    @Operation(summary = "SMS Service", description = "SMS Service")
+    @RequestMapping(value = ["/smsSendService"], method = [RequestMethod.POST])
+    fun smsSendService(
+        @RequestParam(name= "receipient", required = false) receipient: String
+    ) : Result<String> {
+        return iUsersService.smsSendService(receipient)
     }*/
 
     @Operation(summary = "Register Provider User", description = "Register Provider User")
@@ -157,5 +165,61 @@ class AuthenticationController {
         }else{
             ResponseEntity(result.msg, HttpStatus.BAD_REQUEST)
         }
+    }
+
+    @Operation(summary = "Register Prospect User", description = "Register Provider User")
+    @RequestMapping(value = ["/RegisterProspectUser"], method = [RequestMethod.POST])
+    fun RegisterProspectUser(
+        @RequestBody userRequest: RegisterClientUserRequest
+    ) : ResponseEntity<*> {
+        val result = iUsersService.RegisterProspectUser(userRequest)
+        if(result.success){
+            val token: String?
+            val authRequest = AuthenticateUserRequest(
+                userName = userRequest.emailAddress,
+                password = userRequest.password,
+                system = "PROVIDERS"
+            )
+            iUsersService.AuthenticateSystemUser(authRequest)
+            val userDetails = userDetailsAuthServiceImpl.loadUserByUsername(authRequest.userName)
+            val user = iUsersService.findUserDetails(authRequest.userName)
+            token = jwtUtilImpl.generateToken(userDetails)
+            val response = AuthenticationResponse(
+                token = token,
+                user = user,
+            )
+            return ResponseEntity.ok(response)
+        }else{
+             return ResponseEntity(result.msg, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    @Operation(summary = "Initiate Prospect Password Reset", description = "Initiate Prospect Password Reset")
+    @RequestMapping(value = ["/InitiateResetProspectPassword"], method = [RequestMethod.POST])
+    fun InitiateResetProspectPassword(
+        @RequestParam(name= "emailAddress", required = false) emailAddress: String
+    ) : Result<String> {
+        return iUsersService.InitiateResetProspectPassword(emailAddress)
+    }
+
+    @Operation(summary = "Prospect Password Reset", description = "Prospect Password Reset")
+    @RequestMapping(value = ["/resetProspectPassword"], method = [RequestMethod.POST])
+    fun resetProspectPassword(
+        @RequestBody userRequest: ResetRequest
+    ) : ResponseEntity<*> {
+        val result =  iUsersService.resetProspectPassword(userRequest.code, userRequest.resetCode, userRequest.password)
+        return if(result.success){
+            ResponseEntity("Password reset successfully.", HttpStatus.OK)
+        }else{
+            ResponseEntity(result.msg, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    @Operation(summary = "Email Service", description = "Email Service")
+    @RequestMapping(value = ["/emailSendService"], method = [RequestMethod.POST])
+    fun emailSendService(
+        @RequestParam(name= "receipient", required = false) receipient: String
+    ) : Result<String> {
+        return iUsersService.emailSendService(receipient)
     }
 }

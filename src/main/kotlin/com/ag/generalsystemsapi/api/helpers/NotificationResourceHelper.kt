@@ -36,6 +36,9 @@ class NotificationResourceHelper {
     @Value("\${notification.smsUrl}")
     lateinit var smsNotificationUrl: String// = "https://quicksms.advantasms.com/api/services/sendsms/"
 
+    @Value("\${notification.smsOrganization}")
+    lateinit var smsOrganization: String// = ""
+
 
     //var notificationUrl: String = "http://10.10.1.111:8080/"
 
@@ -107,15 +110,32 @@ class NotificationResourceHelper {
     }
 
     fun sendSms(message: String, destination: String): String {
-        val url = UriComponentsBuilder.fromHttpUrl(smsNotificationUrl)
-            .queryParam("apikey", smsApiKey)
-            .queryParam("partnerID", smsPartnerID)
-            .queryParam("message", message)
-            .queryParam("shortcode", smsShortcode)
-            .queryParam("mobile", destination)
-            .toUriString()
+        if(smsOrganization == "CANNON"){
+            val url = UriComponentsBuilder.fromHttpUrl(smsNotificationUrl)
+                .queryParam("User_ID", smsPartnerID)
+                .queryParam("passkey", smsApiKey)
+                .queryParam("service", 1L)
+                .queryParam("sender", smsOrganization)
+                .queryParam("dest", destination)
+                .queryParam("msg", message)
+                .queryParam("msgType", "TRANSACTION")
+                .build(false)       // ← disables encoding
+                .toString()
 
-        return RestTemplate().getForObject(url, String::class.java) ?: "No response"
+            return RestTemplate().getForObject(url, String::class.java) ?: "No response"
+        }else if (smsOrganization == "GEMINIA"){
+            val url = UriComponentsBuilder.fromHttpUrl(smsNotificationUrl)
+                .queryParam("apikey", smsApiKey)
+                .queryParam("partnerID", smsPartnerID)
+                .queryParam("message", message)
+                .queryParam("shortcode", smsShortcode)
+                .queryParam("mobile", destination)
+                .toUriString()
+
+            return RestTemplate().getForObject(url, String::class.java) ?: "No response"
+        }else{
+           return "No SMS configured"
+        }
     }
 
 }

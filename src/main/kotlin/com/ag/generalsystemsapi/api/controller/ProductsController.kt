@@ -39,4 +39,13 @@ class ProductsController {
     @GetMapping("/findPetProducts", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun findPetProducts(): Result<ProductsModel?> = iProductsService.findPetProducts()
 
+    @Operation(summary = "Populate Premium Rates", description = "Populate Premium Rates")
+    @RequestMapping(value = ["/populateSubClassPremRates"], method = [RequestMethod.POST])
+    fun populateSubClassPremRates(
+        @RequestParam(required = true) subClassCode: Long
+    ) : ResponseEntity<*> {
+        iProductsService.populateSubClassPremRates(subClassCode)
+        return ResponseEntity("Success", HttpStatus.OK)
+    }
+
 }
